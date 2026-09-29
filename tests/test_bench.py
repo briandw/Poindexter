@@ -398,3 +398,19 @@ def test_k_sweep_counts_k_unavailable_apart():
     approx_rate(ks["agreement"]["3"], 3, 4)
     assert "1 unavailable" in tables({"squad": {**evaluate(sweep_results())["squad"],
                                                     "k_sweep": ks}})  # fmt: skip
+
+
+def test_evaluate_counts_abstained_answers_without_a_verdict():
+    from poindexter.bench import evaluate
+    from poindexter.contract import Answer, ProbeRun, Record, Result, Unit
+
+    rec = Record("r", "q", [Unit("u1", "t")], gold=[], meta={"dataset": "squad",
+                 "dataset_answers": [], "unanswerable": True})  # fmt: skip
+    a = Answer(None, [], True)
+    run = ProbeRun(raw=["{}"], parsed=[a], outcomes=["abstain"], majority="abstain")
+    res = Result(record=rec, model="m", k=1, temperature=None, status="ok", A=a,
+                 probes={"O": run}, compliance={"calls": 1, "retries": 0,
+                 "final_rejections": 0, "code": None})  # fmt: skip
+    sec = evaluate([res])["squad"]
+    assert sec["abstained"] == 1
+    assert sum(sec["verdicts"].values()) == 0
