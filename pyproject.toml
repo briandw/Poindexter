@@ -1,0 +1,28 @@
+[project]
+name = "poindexter"
+version = "0.1.0"
+description = "Training-free check on whether a model's citations are load-bearing"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+dependencies = ["matplotlib>=3.9"]
+
+[project.scripts]
+poindexter = "poindexter.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
