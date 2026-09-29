@@ -132,3 +132,31 @@ def test_result_round_trip():
         probes={"O": run}, loo={"u1": run}, verdict="grounded", flags={}, alignment={},
     )
     assert Result.from_json(json.loads(json.dumps(res.to_json()))).to_json() == res.to_json()
+
+
+def test_duplicate_keys_rejected():
+    raw = '{"answer": "x", "answer": "y", "cites": ["u1"], "abstain": false}'
+    assert code(raw) == "BAD_KEYS"
+
+
+def test_abstain_rule_wins_over_type_checks():
+    assert code(obj(answer=90, cites=[], abstain=True)) == "BAD_ABSTAIN"
+    assert code(obj(answer=None, cites="u2", abstain=True)) == "BAD_ABSTAIN"
+
+
+def test_supplied_answer_must_satisfy_contract():
+    base = {"id": "r", "question": "q", "units": [{"id": "u1", "text": "t"}]}
+    ok = {**base, "answer": {"text": "t", "cites": ["u1"], "abstain": False}}
+    assert Record.from_json(ok).answer == Answer("t", ["u1"], False)
+    bad = [
+        {"text": "t", "cites": "u1", "abstain": False},
+        {"text": "t", "cites": ["u1"], "abstain": "false"},
+        {"text": "t", "cites": ["u9"], "abstain": False},
+        {"text": "t", "cites": [], "abstain": True},
+        {"text": "", "cites": ["u1"], "abstain": False},
+    ]
+    for answer in bad:
+        with pytest.raises(ValueError):
+            Record.from_json({**base, "answer": answer})
+    with pytest.raises(ValueError):
+        Record.from_json({**base, "answer": None})

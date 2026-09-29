@@ -42,7 +42,14 @@ class Answer:
     @classmethod
     def from_json(cls, d: dict[str, Any]) -> Answer:
         _require_keys(d, {"text", "cites", "abstain"}, set(), "answer")
-        return cls(text=d["text"], cites=list(d["cites"]), abstain=d["abstain"])
+        text, cites, abstain = d["text"], d["cites"], d["abstain"]
+        if text is not None and not isinstance(text, str):
+            raise ValueError(f"answer: text must be a string or null, got {text!r}")
+        if not isinstance(cites, list) or not all(isinstance(c, str) for c in cites):
+            raise ValueError(f"answer: cites must be a list of strings, got {cites!r}")
+        if not isinstance(abstain, bool):
+            raise ValueError(f"answer: abstain must be a bool, got {abstain!r}")
+        return cls(text=text, cites=list(cites), abstain=abstain)
 
 
 @dataclass(frozen=True)
@@ -58,6 +65,15 @@ class Record:
         ids = [u.id for u in self.units]
         if len(ids) != len(set(ids)):
             raise ValueError(f"record {self.id}: unit id collision in {ids}")
+        if self.answer is not None:
+            checked = _check_answer(
+                self.answer.text, self.answer.cites, self.answer.abstain, self.unit_ids
+            )
+            if isinstance(checked, Rejection):
+                raise ValueError(
+                    f"record {self.id}: supplied answer violates the contract: "
+                    f"{checked.code}: {checked.message}"
+                )
 
     @property
     def unit_ids(self) -> set[str]:
@@ -84,7 +100,9 @@ class Record:
         for u in d["units"]:
             _require_keys(u, {"id", "text"}, set(), "unit")
             units.append(Unit(id=u["id"], text=u["text"]))
-        answer = Answer.from_json(d["answer"]) if d.get("answer") is not None else None
+        if "answer" in d and d["answer"] is None:
+            raise ValueError(f"record {d['id']}: answer is null; omit the key to generate one")
+        answer = Answer.from_json(d["answer"]) if "answer" in d else None
         return cls(
             id=d["id"],
             question=d["question"],
@@ -136,12 +154,21 @@ def _extract_object(raw: str) -> dict[str, Any] | Rejection:
     s = raw.strip()
     m = _FENCE.match(s)
     body = m.group(1) if m else s
+    duplicates: list[str] = []
+
+    def pairs(items: list[tuple[str, Any]]) -> dict[str, Any]:
+        keys = [k for k, _ in items]
+        duplicates.extend(k for k in set(keys) if keys.count(k) > 1)
+        return dict(items)
+
     try:
-        obj = json.loads(body)
+        obj = json.loads(body, object_pairs_hook=pairs)
     except json.JSONDecodeError as e:
         return Rejection("INVALID_JSON", f"not one JSON object ({e.msg})")
     if not isinstance(obj, dict):
         return Rejection("INVALID_JSON", "top-level value is not an object")
+    if duplicates:
+        return Rejection("BAD_KEYS", f"duplicate keys {sorted(set(duplicates))}")
     return obj
 
 
@@ -152,18 +179,22 @@ def validate(raw: str, unit_ids: set[str]) -> Answer | Rejection:
     if set(obj) != {"answer", "cites", "abstain"}:
         got = sorted(obj)
         return Rejection("BAD_KEYS", f"keys must be exactly answer, cites, abstain; got {got}")
-    answer, cites, abstain = obj["answer"], obj["cites"], obj["abstain"]
+    return _check_answer(obj["answer"], obj["cites"], obj["abstain"], unit_ids)
+
+
+def _check_answer(answer: Any, cites: Any, abstain: Any, unit_ids: set[str]) -> Answer | Rejection:
+    """The contract rules on already-extracted values, shared by validate and supplied answers."""
     if not isinstance(abstain, bool):
         return Rejection("BAD_ABSTAIN", "abstain must be true or false")
+    if abstain:
+        if answer is not None or cites != []:
+            msg = "abstain is true, so answer must be null and cites empty"
+            return Rejection("BAD_ABSTAIN", msg)
+        return Answer(text=None, cites=[], abstain=True)
     if not isinstance(cites, list) or not all(isinstance(c, str) for c in cites):
         return Rejection("BAD_CITES", "cites must be a list of unit id strings")
     if answer is not None and not isinstance(answer, str):
         return Rejection("BAD_ANSWER", "answer must be a string or null")
-    if abstain:
-        if answer is not None or cites:
-            msg = "abstain is true, so answer must be null and cites empty"
-            return Rejection("BAD_ABSTAIN", msg)
-        return Answer(text=None, cites=[], abstain=True)
     if answer is None or not answer.strip():
         return Rejection("BAD_ANSWER", "abstain is false, so answer must be a non-empty string")
     if len(answer) > MAX_ANSWER_CHARS:
