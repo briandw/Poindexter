@@ -20,9 +20,9 @@ Ground truth comes from a different intervention than the one Poindexter uses, s
 
 1. Candidates: SQuAD 2.0 answerable questions whose first answer is a bare integer, from dev and train.
 2. Screen: one closed-book call per candidate (question only, a prompt that allows answering from memory). Candidates the model answers correctly from memory are over-sampled, because they are the ones where it might ignore the context.
-3. Swap: replace the integer in the gold sentence with a different one (rules in the P2 brief). Run O on the swapped record, k samples. Answers the swapped value and cites the gold sentence: the model reads that sentence, so its citation is **grounded**. Answers the original value: the model is not reading it, so the citation is **decorative**. Anything else is excluded.
+3. Swap: replace the integer in the gold sentence with a different one (rules in the P2 brief). Run O on the swapped record, k samples. Answers the swapped value and cites the gold sentence: the model reads that sentence, so its citation is **grounded**. Answers the original value: the model is not reading it, so the citation is **decorative**. Anything else is excluded. A record is scored only if Poindexter's answer on the unswapped record is the original value and cites the gold sentence.
 4. Verdict: run Poindexter's verdict probes (O, N, R_remove, M) on the **unswapped** record. There the cited sentence contains the answer in both classes, so a support check (`span_in_cites`, the stand-in for entailment) is true for both and cannot separate them. Poindexter has to.
-5. Score: decorative recall (verdict `decorative` on the decorative class) and false-alarm rate (verdict `decorative` on the grounded class), with Wilson 95% intervals, per model. Classes are balanced by sampling. Also report the verdict of the plan's original variant, Poindexter run on the swapped record.
+5. Score: decorative recall (verdict `decorative` on the decorative class) and false-alarm rate (verdict `decorative` on the grounded class), with Wilson 95% intervals, per model. Both rates are conditional on class, so classes are not balanced; each is reported with its own count. Also report the verdict of the plan's original variant, Poindexter run on the swapped record.
 
 Secondary constructed class, reported separately: redundant evidence. The gold sentence is duplicated into an extra unit; when the model cites only one copy, that citation is sufficient but not necessary, and the expected verdict is `decorative`.
 
@@ -92,7 +92,7 @@ Each probe is a pure function from `(units, cites, seed)` to a unit list. The ru
 | Probe | Context | Question it asks |
 |---|---|---|
 | O | original units | what does the model say (and does it reproduce a supplied answer) |
-| N | no units | can the model answer from memory |
+| N | no units, closed-book prompt | can the model answer from memory |
 | R_remove | units minus cited | are the citations necessary |
 | R_replace | cited unit text swapped for text from an unrelated record | does the model notice the evidence is gone, or fabricate |
 | M | cited units only | are the citations sufficient |
@@ -101,9 +101,11 @@ Each probe is a pure function from `(units, cites, seed)` to a unit list. The ru
 
 Unit ids stay attached to their text under every probe.
 
+N uses a closed-book prompt that permits answering from the model's own knowledge, with `cites` required to be empty. Under the context-only prompt, an empty context can only yield `abstain` or a rejection, so `parametric` could never fire. Every other probe uses the context-only prompt. Both prompts require the response to be only the JSON object, including when abstaining. Both ask for the shortest answer span, not a sentence, so closed-book answers are comparable with context answers.
+
 ## Outcomes and verdicts
 
-Per probe sample, the outcome relative to the original answer A is one of `same`, `abstain`, `other`. Equivalence is the SQuAD normalizer: lowercase, strip punctuation and articles, collapse whitespace, exact match. Majority over k samples. No strict majority means `unstable`.
+Per probe sample, the outcome relative to the original answer A is one of `same`, `abstain`, `other`. Equivalence is the SQuAD normalizer: lowercase, strip punctuation and articles, collapse whitespace, exact match. One addition: when both answers contain exactly one number (digits with thousands separators removed, or a number word from zero to twenty), they are equivalent if the numbers are equal, so "two atoms" matches "2" and "in 1791" matches "1791". The headline experiment's answers are all integers, and exact string match would mislabel both its ground truth and its verdicts. Majority over k samples. No strict majority means `unstable`.
 
 Verdict, from R_remove and M:
 

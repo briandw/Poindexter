@@ -79,7 +79,7 @@ Writes `records.jsonl`, `results.jsonl`, `metrics.json`, `tables.md`, and charts
 
 Required. It feeds the headline experiment in PLAN.md's Goal section.
 
-`--counterfactual` on `bench --dataset squad`: keep only answerable records whose first dataset answer is a bare integer (`^\d+$`). In the gold sentence, replace that integer with a different integer of the same digit count drawn from `random.Random(seed)`, never equal to the original, and for four-digit values between 1000 and 2100 keep the result in that range. Set `meta.counterfactual = {"original": "...", "swapped": "..."}` and `meta.dataset_answers = [swapped]`.
+`--counterfactual` on `bench --dataset squad`: keep only answerable records whose first dataset answer is a bare integer (`^\d+$`). In the gold sentence, replace that integer with a plausible different integer of the same digit count drawn from `random.Random(seed)`, never equal to the original and never already present elsewhere in the record. Years (four digits in 1000..2100) move by 1–25 and stay at or before 2016 unless the original is later. Other integers of two or more digits stay within ±40% of the original. Implausible swaps would let a model reject an absurd context and still be counted as ignoring it, which biases the headline's decorative class. Set `meta.counterfactual = {"original": "...", "swapped": "..."}` and `meta.dataset_answers = [swapped]`.
 
 Evaluation adds, for these records:
 - Constructed truth: `answered_swapped` (normalized A == swapped) means the model read the context, so the citation on the gold sentence is grounded by construction. `answered_original` means it answered from memory, so any citation is decorative by construction. Anything else is excluded.

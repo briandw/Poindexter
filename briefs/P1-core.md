@@ -41,7 +41,7 @@ Dataclasses: `Unit(id, text)`, `Answer(text: str | None, cites: list[str], absta
 
 ## prompt.py
 
-One system prompt and one user template. The system prompt states the output schema verbatim and the three rules from PLAN.md (answer only from context, cite every unit relied on, abstain with null answer and empty cites when the context doesn't contain it). The user message lists units as `[u1] text` lines, then `Question: ...`.
+One system prompt and one user template. The system prompt states the output schema verbatim and the three rules from PLAN.md (answer only from context, cite every unit relied on, abstain with null answer and empty cites when the context doesn't contain it). The user message lists units as `[u1] text` lines, then `Question: ...`. A second, closed-book prompt serves probe N and the headline screen: it permits answering from memory and requires `cites: []`.
 
 The retry prompt appends one line: `Your previous response was rejected: <code>: <message>. Respond with only the JSON object.`
 
