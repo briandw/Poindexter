@@ -19,13 +19,25 @@ import asyncio
 import hashlib
 import json
 import random
+import re
 import sys
+from collections import Counter
 from pathlib import Path
 from typing import Any
 
 from poindexter import bench, datasets, runner, verdict
 from poindexter.backend import Backend
-from poindexter.contract import SAME, ProbeRun, Record, Result, write_jsonl
+from poindexter.contract import (
+    SAME,
+    ProbeRun,
+    Record,
+    Result,
+    Unit,
+    canonical,
+    read_jsonl,
+    read_records,
+    write_jsonl,
+)
 
 SWEEP_K = 5
 
@@ -212,3 +224,119 @@ def outcome(section: dict[str, Any]) -> dict[str, Any]:
         "classes": classes,
         "k_agreement": agreement_rate,
     }
+
+
+# --- exploratory arm (not pre-registered) -------------------------------------
+
+
+def wide_swap_record(record: Record, seed: int) -> Record:
+    """A deliberately implausible swap: years move 100-300, counts scale by 3-5x.
+
+    Only for the exploratory arm, which asks whether a knowledge-permitted agent ever
+    overrides its context. Never used for the pre-registered headline.
+    """
+    original = record.meta["dataset_answers"][0]
+    n = int(original)
+    rng = random.Random(f"{seed}:{record.id}:wide")
+
+    def mentions(value: str, text: str) -> int:
+        # A standalone number: not inside a word, a decimal, or a longer digit run.
+        return len(re.findall(rf"(?<![\w,.]){re.escape(value)}(?!\w|[,.]\d)", text))
+
+    gold = record.gold[0]
+    if [mentions(original, u.text) for u in record.units if u.id == gold] != [1] or any(
+        mentions(original, u.text) for u in record.units if u.id != gold
+    ):
+        raise ValueError(f"record {record.id}: answer is not exactly one mention in the gold unit")
+    for _ in range(20):
+        if 1000 <= n <= 2100:
+            new = n + rng.choice([-1, 1]) * rng.randint(100, 300)
+            new = new if 1000 <= new <= 2100 else n - rng.randint(100, 300)
+        else:
+            new = n * rng.randint(3, 5)
+        if not any(mentions(str(new), u.text) for u in record.units):
+            break
+    else:
+        raise ValueError(f"record {record.id}: no wide swap value absent from the record")
+    pattern = re.compile(rf"(?<![\w,.]){re.escape(original)}(?!\w|[,.]\d)")
+    units = []
+    for u in record.units:
+        if u.id == gold:
+            units.append(Unit(u.id, pattern.sub(str(new), u.text, count=1)))
+        else:
+            units.append(u)
+    meta = {
+        **record.meta,
+        "counterfactual": {"original": original, "swapped": str(new), "source_id": record.id},
+        "dataset_answers": [str(new)],
+    }
+    return Record(f"{record.id}~wide", record.question, units, None, record.gold, meta)
+
+
+async def explore_open_agent(
+    backend: Backend,
+    swap_dir: str | Path,
+    out_dir: str | Path,
+    *,
+    k: int = 3,
+    seed: int = 0,
+    concurrency: int = runner.DEFAULT_CONCURRENCY,
+) -> dict[str, Any]:
+    """Audit a knowledge-permitted agent on the memorized facts of a headline run.
+
+    For each memorized record: the agent's answers on a plausible swap and on a wide swap
+    give two swap classes; Poindexter's verdict probes, run with the same agent prompt on
+    the unswapped record, give the verdict. The report is the confusion of each against
+    the other: under this prompt, "the model reads the sentence" (swap) and "the
+    sentence is necessary" (removal) can come apart.
+    """
+    src, out = Path(swap_dir), Path(out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    screen = {row["id"]: row["majority"] for row in read_jsonl(src / "screen.jsonl")}
+    memorized = [r for r in read_records(src / "candidates.jsonl") if screen[r.id] == SAME]
+    _log(f"[{backend.model}] open agent on {len(memorized)} memorized records")
+
+    plausible = [datasets.swap_record(r, seed) for r in memorized]
+    wide = []
+    for r in memorized:
+        try:
+            wide.append(wide_swap_record(r, seed))
+        except ValueError as e:
+            _log(f"[{backend.model}] skipping wide swap: {e}")
+    swapped = await runner.run_records(
+        plausible + wide, backend, k, None, seed, concurrency, probes="O", agent="open"
+    )
+    _write_results(out / "swapped_results.jsonl", swapped)
+    originals = await runner.run_records(
+        memorized, backend, k, None, seed, concurrency, probes="verdict", agent="open"
+    )
+    _write_results(out / "original_results.jsonl", originals)
+
+    verdicts = {r.record.id: r for r in originals}
+    report: dict[str, Any] = {"model": backend.model, "memorized": len(memorized)}
+    for kind in ("swap", "wide"):
+        runs = [s for s in swapped if s.record.id.endswith(f"~{kind}")]
+        classes = Counter()
+        confusion: dict[str, Counter] = {}
+        for s in runs:
+            cls, reason = bench.swap_class(s)
+            o = verdicts[s.record.meta["counterfactual"]["source_id"]]
+            if cls in ("grounded", "decorative") and (
+                o.A is None or o.A.abstain or canonical(o.A.text or "")
+                != canonical(s.record.meta["counterfactual"]["original"])
+            ):
+                cls, reason = "excluded", "original_wrong_answer"
+            elif cls in ("grounded", "decorative") and not set(o.record.gold) & set(o.A.cites):
+                cls, reason = "excluded", "original_no_gold_cite"
+            classes[cls if cls != "excluded" else f"excluded:{reason}"] += 1
+            if cls in ("grounded", "decorative"):
+                confusion.setdefault(cls, Counter())[str(o.verdict)] += 1
+        report[kind] = {
+            "classes": dict(classes),
+            "confusion": {c: dict(v) for c, v in confusion.items()},
+        }
+    report["verdicts_all"] = dict(Counter(str(r.verdict) for r in originals))
+    report["parametric"] = sum(bool(r.flags and r.flags.get("parametric")) for r in originals)
+    (out / "explore.json").write_text(json.dumps(report, indent=2) + "\n")
+    _log(f"[{backend.model}] explore: {json.dumps(report)}")
+    return report

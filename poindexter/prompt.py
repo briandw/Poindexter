@@ -21,6 +21,25 @@ sentence (a name, number, date, or short phrase), at most {MAX_ANSWER_CHARS} cha
 5. Your response is the JSON object alone, with nothing before or after it and no \
 explanation, including when you abstain."""
 
+# The exploratory arm audits a different agent: one allowed to use its own knowledge
+# alongside the context, as many retrieval-augmented systems are.
+OPEN_SYSTEM = SYSTEM.replace(
+    "You answer a question using only the context units the user provides.",
+    "You answer a question. The user provides context units retrieved for it; use them "
+    "together with your own knowledge and give the answer you believe is correct.",
+).replace(
+    "1. Answer only from the context units. Do not use outside knowledge.",
+    "1. Use the context units and your own knowledge.",
+).replace(
+    "2. Cite the id of every unit you relied on, and only ids that appear in the context.",
+    "2. Cite the id of every unit that supports your answer, and only ids that appear in the "
+    "context.",
+).replace(
+    "3. If the context does not contain the answer, abstain:",
+    "3. If you cannot answer, abstain:",
+)
+AGENTS = {"context": SYSTEM, "open": OPEN_SYSTEM}
+
 CLOSED_BOOK_SYSTEM = f"""\
 You answer a question from your own knowledge. No context is provided.
 
@@ -39,9 +58,9 @@ explanation, including when you abstain."""
 NO_CONTEXT = "(no context units)"
 
 
-def build_prompt(units: list[Unit], question: str) -> tuple[str, str]:
+def build_prompt(units: list[Unit], question: str, agent: str = "context") -> tuple[str, str]:
     lines = [f"[{u.id}] {u.text}" for u in units] or [NO_CONTEXT]
-    return SYSTEM, "Context:\n" + "\n".join(lines) + f"\n\nQuestion: {question}"
+    return AGENTS[agent], "Context:\n" + "\n".join(lines) + f"\n\nQuestion: {question}"
 
 
 def build_closed_book_prompt(question: str) -> tuple[str, str]:
