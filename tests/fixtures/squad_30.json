@@ -1,0 +1,550 @@
+{
+ "version": "v2.0",
+ "data": [
+  {
+   "title": "Normans",
+   "paragraphs": [
+    {
+     "qas": [
+      {
+       "question": "When was the Duchy of Normandy founded?",
+       "id": "56dde0ba66d3e219004dad75",
+       "answers": [
+        {
+         "text": "911",
+         "answer_start": 244
+        },
+        {
+         "text": "911",
+         "answer_start": 244
+        },
+        {
+         "text": "911",
+         "answer_start": 244
+        }
+       ],
+       "is_impossible": false
+      },
+      {
+       "question": "Who did Rollo sign the treaty of Saint-Clair-sur-Epte with?",
+       "id": "56dde0ba66d3e219004dad76",
+       "answers": [
+        {
+         "text": "King Charles III",
+         "answer_start": 324
+        },
+        {
+         "text": "King Charles III",
+         "answer_start": 324
+        },
+        {
+         "text": "King Charles III",
+         "answer_start": 324
+        }
+       ],
+       "is_impossible": false
+      },
+      {
+       "question": "What river originally bounded the Duchy",
+       "id": "56dde0ba66d3e219004dad77",
+       "answers": [
+        {
+         "text": "Seine",
+         "answer_start": 711
+        },
+        {
+         "text": "Epte",
+         "answer_start": 524
+        },
+        {
+         "text": "Seine",
+         "answer_start": 711
+        }
+       ],
+       "is_impossible": false
+      },
+      {
+       "plausible_answers": [
+        {
+         "text": "10th century",
+         "answer_start": 21
+        }
+       ],
+       "question": "when did Nors encampments ivolve into destructive incursions?",
+       "id": "5ad3ad61604f3c001a3fec0d",
+       "answers": [],
+       "is_impossible": true
+      },
+      {
+       "plausible_answers": [
+        {
+         "text": "treaty of Saint-Clair-sur-Epte",
+         "answer_start": 285
+        }
+       ],
+       "question": "What treaty was established in the 9th century?",
+       "id": "5ad3ad61604f3c001a3fec0e",
+       "answers": [],
+       "is_impossible": true
+      },
+      {
+       "plausible_answers": [
+        {
+         "text": "Rollo",
+         "answer_start": 384
+        }
+       ],
+       "question": "Who established a treaty with King Charles the third of France?",
+       "id": "5ad3ad61604f3c001a3fec0f",
+       "answers": [],
+       "is_impossible": true
+      },
+      {
+       "plausible_answers": [
+        {
+         "text": "further Viking incursions.",
+         "answer_start": 593
+        }
+       ],
+       "question": "What did the French promises to protect Rollo and his men from?",
+       "id": "5ad3ad61604f3c001a3fec10",
+       "answers": [],
+       "is_impossible": true
+      }
+     ],
+     "context": "In the course of the 10th century, the initially destructive incursions of Norse war bands into the rivers of France evolved into more permanent encampments that included local women and personal property. The Duchy of Normandy, which began in 911 as a fiefdom, was established by the treaty of Saint-Clair-sur-Epte between King Charles III of West Francia and the famed Viking ruler Rollo, and was situated in the former Frankish kingdom of Neustria. The treaty offered Rollo and his men the French lands between the river Epte and the Atlantic coast in exchange for their protection against further Viking incursions. The area corresponded to the northern part of present-day Upper Normandy down to the river Seine, but the Duchy would eventually extend west beyond the Seine. The territory was roughly equivalent to the old province of Rouen, and reproduced the Roman administrative structure of Gallia Lugdunensis II (part of the former Gallia Lugdunensis)."
+    },
+    {
+     "qas": [
+      {
+       "question": "What was the name of the count of Apulia ",
+       "id": "56de148dcffd8e1900b4b5bc",
+       "answers": [
+        {
+         "text": "Robert Guiscard",
+         "answer_start": 0
+        },
+        {
+         "text": "Robert Guiscard",
+         "answer_start": 0
+        },
+        {
+         "text": "Robert Guiscard",
+         "answer_start": 0
+        }
+       ],
+       "is_impossible": false
+      },
+      {
+       "question": "When did Dyrrachium  fall to the Normans?",
+       "id": "56de148dcffd8e1900b4b5bd",
+       "answers": [
+        {
+         "text": "1082",
+         "answer_start": 1315
+        },
+        {
+         "text": "February 1082",
+         "answer_start": 1306
+        },
+        {
+         "text": "February 1082",
+         "answer_start": 1306
+        }
+       ],
+       "is_impossible": false
+      },
+      {
+       "question": "How many men were in Robert's army?",
+       "id": "56de148dcffd8e1900b4b5be",
+       "answers": [
+        {
+         "text": "30,000",
+         "answer_start": 492
+        },
+        {
+         "text": "30,000",
+         "answer_start": 492
+        },
+        {
+         "text": "30,000",
+         "answer_start": 492
+        }
+       ],
+       "is_impossible": false
+      },
+      {
+       "plausible_answers": [
+        {
+         "text": "Robert Guiscard",
+         "answer_start": 0
+        }
+       ],
+       "question": "Who ultimatly drove the Byzantines out of Europe?",
+       "id": "5ad3ed26604f3c001a3ff799",
+       "answers": [],
+       "is_impossible": true
+      },
+      {
+       "plausible_answers": [
+        {
+         "text": "pope Gregory VII",
+         "answer_start": 225
+        }
+       ],
+       "question": "What pope opposed Roberts campaign?",
+       "id": "5ad3ed26604f3c001a3ff79a",
+       "answers": [],
+       "is_impossible": true
+      },
+      {
+       "plausible_answers": [
+        {
+         "text": "Dyrrachium",
+         "answer_start": 1326
+        }
+       ],
+       "question": "What fell to the Normans in the 10th century?",
+       "id": "5ad3ed26604f3c001a3ff79b",
+       "answers": [],
+       "is_impossible": true
+      },
+      {
+       "plausible_answers": [
+        {
+         "text": "30,000",
+         "answer_start": 492
+        }
+       ],
+       "question": "How many men did Roberts army face?",
+       "id": "5ad3ed26604f3c001a3ff79c",
+       "answers": [],
+       "is_impossible": true
+      }
+     ],
+     "context": "Robert Guiscard, an other Norman adventurer previously elevated to the dignity of count of Apulia as the result of his military successes, ultimately drove the Byzantines out of southern Italy. Having obtained the consent of pope Gregory VII and acting as his vassal, Robert continued his campaign conquering the Balkan peninsula as a foothold for western feudal lords and the Catholic Church. After allying himself with Croatia and the Catholic cities of Dalmatia, in 1081 he led an army of 30,000 men in 300 ships landing on the southern shores of Albania, capturing Valona, Kanina, Jericho (Orikumi), and reaching Butrint after numerous pillages. They joined the fleet that had previously conquered Corfu and attacked Dyrrachium from land and sea, devastating everything along the way. Under these harsh circumstances, the locals accepted the call of emperor Alexius I Comnenus to join forces with the Byzantines against the Normans. The Albanian forces could not take part in the ensuing battle because it had started before their arrival. Immediately before the battle, the Venetian fleet had secured a victory in the coast surrounding the city. Forced to retreat, Alexius ceded the command to a high Albanian official named Comiscortes in the service of Byzantium. The city's garrison resisted until February 1082, when Dyrrachium was betrayed to the Normans by the Venetian and Amalfitan merchants who had settled there. The Normans were now free to penetrate into the hinterland; they took Ioannina and some minor cities in southwestern Macedonia and Thessaly before appearing at the gates of Thessalonica. Dissension among the high ranks coerced the Normans to retreat to Italy. They lost Dyrrachium, Valona, and Butrint in 1085, after the death of Robert."
+    },
+    {
+     "qas": [
+      {
+       "question": "When did the Normans attack Dyrrachium?",
+       "id": "56de1563cffd8e1900b4b5c2",
+       "answers": [
+        {
+         "text": "1185",
+         "answer_start": 86
+        },
+        {
+         "text": "in 1185",
+         "answer_start": 83
+        },
+        {
+         "text": "1185",
+         "answer_start": 86
+        }
+       ],
+       "is_impossible": false
+      },
+      {
+       "question": "What was the naval base called?",
+       "id": "56de1563cffd8e1900b4b5c3",
+       "answers": [
+        {
+         "text": "Dyrrachium",
+         "answer_start": 125
+        },
+        {
+         "text": "Dyrrachium",
+         "answer_start": 205
+        },
+        {
+         "text": "Dyrrachium",
+         "answer_start": 205
+        }
+       ],
+       "is_impossible": false
+      },
+      {
+       "question": "Where was Dyrrachium located?",
+       "id": "56de1563cffd8e1900b4b5c4",
+       "answers": [
+        {
+         "text": "the Adriatic",
+         "answer_start": 257
+        },
+        {
+         "text": "the Adriatic",
+         "answer_start": 257
+        },
+        {
+         "text": "Adriatic",
+         "answer_start": 261
+        }
+       ],
+       "is_impossible": false
+      },
+      {
+       "plausible_answers": [
+        {
+         "text": "Norman army",
+         "answer_start": 105
+        }
+       ],
+       "question": "Who attacked Dyrrachium in the 11th century?",
+       "id": "5ad3f028604f3c001a3ff823",
+       "answers": [],
+       "is_impossible": true
+      },
+      {
+       "plausible_answers": [
+        {
+         "text": "high Byzantine officials",
+         "answer_start": 162
+        }
+       ],
+       "question": "Who betrayed the Normans?",
+       "id": "5ad3f028604f3c001a3ff824",
+       "answers": [],
+       "is_impossible": true
+      }
+     ],
+     "context": "The further decline of Byzantine state-of-affairs paved the road to a third attack in 1185, when a large Norman army invaded Dyrrachium, owing to the betrayal of high Byzantine officials. Some time later, Dyrrachium—one of the most important naval bases of the Adriatic—fell again to Byzantine hands."
+    },
+    {
+     "qas": [
+      {
+       "question": "Who was Edward the Confessor's half-brother?",
+       "id": "56de1645cffd8e1900b4b5d0",
+       "answers": [
+        {
+         "text": "Harthacnut",
+         "answer_start": 115
+        },
+        {
+         "text": "Harthacnut",
+         "answer_start": 115
+        },
+        {
+         "text": "Harthacnut",
+         "answer_start": 115
+        }
+       ],
+       "is_impossible": false
+      },
+      {
+       "question": "When did Edward return?",
+       "id": "56de1645cffd8e1900b4b5d1",
+       "answers": [
+        {
+         "text": "1041",
+         "answer_start": 71
+        },
+        {
+         "text": "in 1041",
+         "answer_start": 68
+        },
+        {
+         "text": "1041",
+         "answer_start": 71
+        }
+       ],
+       "is_impossible": false
+      },
+      {
+       "question": "Who did Edward make archbishop of Canterbury?",
+       "id": "56de1645cffd8e1900b4b5d2",
+       "answers": [
+        {
+         "text": "Robert of Jumièges",
+         "answer_start": 382
+        },
+        {
+         "text": "Robert of Jumièges",
+         "answer_start": 382
+        },
+        {
+         "text": "Robert of Jumièges",
+         "answer_start": 382
+        }
+       ],
+       "is_impossible": false
+      }
+     ],
+     "context": "When finally Edward the Confessor returned from his father's refuge in 1041, at the invitation of his half-brother Harthacnut, he brought with him a Norman-educated mind. He also brought many Norman counsellors and fighters, some of whom established an English cavalry force. This concept never really took root, but it is a typical example of the attitudes of Edward. He appointed Robert of Jumièges archbishop of Canterbury and made Ralph the Timid earl of Hereford. He invited his brother-in-law Eustace II, Count of Boulogne to his court in 1051, an event which resulted in the greatest of early conflicts between Saxon and Norman and ultimately resulted in the exile of Earl Godwin of Wessex."
+    },
+    {
+     "qas": [
+      {
+       "question": "Where did Harold II die?",
+       "id": "56de16ca4396321400ee25c5",
+       "answers": [
+        {
+         "text": "Battle of Hastings",
+         "answer_start": 85
+        },
+        {
+         "text": "the Battle of Hastings",
+         "answer_start": 81
+        },
+        {
+         "text": "at the Battle of Hastings",
+         "answer_start": 78
+        }
+       ],
+       "is_impossible": false
+      },
+      {
+       "question": "Who killed Harold II? ",
+       "id": "56de16ca4396321400ee25c6",
+       "answers": [
+        {
+         "text": "William II",
+         "answer_start": 14
+        },
+        {
+         "text": "Duke William II",
+         "answer_start": 9
+        },
+        {
+         "text": "Duke William II",
+         "answer_start": 9
+        }
+       ],
+       "is_impossible": false
+      },
+      {
+       "question": "When was the Battle of Hastings?",
+       "id": "56de16ca4396321400ee25c7",
+       "answers": [
+        {
+         "text": "1066",
+         "answer_start": 3
+        },
+        {
+         "text": "In 1066",
+         "answer_start": 0
+        },
+        {
+         "text": "1066",
+         "answer_start": 3
+        }
+       ],
+       "is_impossible": false
+      },
+      {
+       "question": "Who was the ruling class ahead of the Normans?",
+       "id": "56de16ca4396321400ee25c8",
+       "answers": [
+        {
+         "text": "Anglo-Saxons",
+         "answer_start": 161
+        },
+        {
+         "text": "the Anglo-Saxons",
+         "answer_start": 157
+        },
+        {
+         "text": "Anglo-Saxons",
+         "answer_start": 161
+        }
+       ],
+       "is_impossible": false
+      }
+     ],
+     "context": "In 1066, Duke William II of Normandy conquered England killing King Harold II at the Battle of Hastings. The invading Normans and their descendants replaced the Anglo-Saxons as the ruling class of England. The nobility of England were part of a single Normans culture and many had lands on both sides of the channel. Early Norman kings of England, as Dukes of Normandy, owed homage to the King of France for their land on the continent. They considered England to be their most important holding (it brought with it the title of King—an important status symbol)."
+    },
+    {
+     "qas": [
+      {
+       "question": "In what year did the Norman's invade at Bannow Bay?",
+       "id": "56de179dcffd8e1900b4b5da",
+       "answers": [
+        {
+         "text": "1169",
+         "answer_start": 101
+        },
+        {
+         "text": "1169",
+         "answer_start": 101
+        },
+        {
+         "text": "1169",
+         "answer_start": 101
+        }
+       ],
+       "is_impossible": false
+      },
+      {
+       "question": "What country did the Normans invade in 1169?",
+       "id": "56de179dcffd8e1900b4b5db",
+       "answers": [
+        {
+         "text": "Ireland",
+         "answer_start": 379
+        },
+        {
+         "text": "Ireland",
+         "answer_start": 379
+        },
+        {
+         "text": "Ireland",
+         "answer_start": 379
+        }
+       ],
+       "is_impossible": false
+      }
+     ],
+     "context": "The Normans had a profound effect on Irish culture and history after their invasion at Bannow Bay in 1169. Initially the Normans maintained a distinct culture and ethnicity. Yet, with time, they came to be subsumed into Irish culture to the point that it has been said that they became \"more Irish than the Irish themselves.\" The Normans settled mostly in an area in the east of Ireland, later known as the Pale, and also built many fine castles and settlements, including Trim Castle and Dublin Castle. Both cultures intermixed, borrowing from each other's language, culture and outlook. Norman descendants today can be recognised by their surnames. Names such as French, (De) Roche, Devereux, D'Arcy, Treacy and Lacy are particularly common in the southeast of Ireland, especially in the southern part of County Wexford where the first Norman settlements were established. Other Norman names such as Furlong predominate there. Another common Norman-Irish name was Morell (Murrell) derived from the French Norman name Morel. Other names beginning with Fitz (from the Norman for son) indicate Norman ancestry. These included Fitzgerald, FitzGibbons (Gibbons) dynasty, Fitzmaurice. Other families bearing such surnames as Barry (de Barra) and De Búrca (Burke) are also of Norman extraction."
+    },
+    {
+     "qas": [
+      {
+       "question": "What year did Roger de Tosny fail to accomplish what he set out to do?",
+       "id": "56de3e414396321400ee26d8",
+       "answers": [
+        {
+         "text": "1018",
+         "answer_start": 221
+        },
+        {
+         "text": "1064",
+         "answer_start": 345
+        },
+        {
+         "text": "1018",
+         "answer_start": 221
+        }
+       ],
+       "is_impossible": false
+      }
+     ],
+     "context": "The legendary religious zeal of the Normans was exercised in religious wars long before the First Crusade carved out a Norman principality in Antioch. They were major foreign participants in the Reconquista in Iberia. In 1018, Roger de Tosny travelled to the Iberian Peninsula to carve out a state for himself from Moorish lands, but failed. In 1064, during the War of Barbastro, William of Montreuil led the papal army and took a huge booty."
+    },
+    {
+     "qas": [
+      {
+       "question": "What year did the storm hit Richard's fleet?",
+       "id": "56de3f784396321400ee26fc",
+       "answers": [
+        {
+         "text": "1191",
+         "answer_start": 9
+        },
+        {
+         "text": "1191",
+         "answer_start": 9
+        },
+        {
+         "text": "1191",
+         "answer_start": 9
+        }
+       ],
+       "is_impossible": false
+      }
+     ],
+     "context": "In April 1191 Richard the Lion-hearted left Messina with a large fleet in order to reach Acre. But a storm dispersed the fleet. After some searching, it was discovered that the boat carrying his sister and his fiancée Berengaria was anchored on the south coast of Cyprus, together with the wrecks of several other ships, including the treasure ship. Survivors of the wrecks had been taken prisoner by the island's despot Isaac Komnenos. On 1 May 1191, Richard's fleet arrived in the port of Limassol on Cyprus. He ordered Isaac to release the prisoners and the treasure. Isaac refused, so Richard landed his troops and took Limassol."
+    }
+   ]
+  }
+ ]
+}
