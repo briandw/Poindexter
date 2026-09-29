@@ -115,8 +115,9 @@ async def _probe(
     temperature: float | None,
     semaphore: asyncio.Semaphore,
     tally: _Tally,
+    agent: str = "context",
 ) -> ProbeRun:
-    system, user = build_prompt(units, question)
+    system, user = build_prompt(units, question, agent)
     ids = {u.id for u in units}
     raw, parsed, _ = await _sample(
         backend, system, user, lambda r: validate(r, ids), k, temperature, semaphore, tally
@@ -164,8 +165,10 @@ async def run_record(
     donor_units: list[Unit] | None,
     semaphore: asyncio.Semaphore,
     probes: str = "all",
+    agent: str = "context",
 ) -> Result:
-    """Audit one record. probes="verdict" runs only O, N, R_remove, M. probes="O" runs
+    """Audit one record. `agent` picks the audited agent's prompt (prompt.AGENTS).
+    probes="verdict" runs only O, N, R_remove, M. probes="O" runs
     only O (A and status as usual) and gives no verdict, flags, or alignment."""
     if probes not in PROBE_SETS:
         raise ValueError(f"probes must be one of {PROBE_SETS}, got {probes!r}")
@@ -173,7 +176,7 @@ async def run_record(
         raise ValueError(f"k must be at least 1, got {k}")
     supplied = record.answer is not None
     tally = _Tally()
-    system, user = build_prompt(record.units, record.question)
+    system, user = build_prompt(record.units, record.question, agent)
     ids = record.unit_ids
     raw, parsed, codes = await _sample(
         backend, system, user, lambda r: validate(r, ids), k, temperature, semaphore, tally
@@ -210,7 +213,7 @@ async def run_record(
             loo_contexts = {u.id: probe_fns.leave_one_out(units, i) for i, u in enumerate(units)}
         n_run, *done = await asyncio.gather(
             _n_probe(record.question, a, backend, k, temperature, semaphore, tally),
-            *(_probe(ctx, record.question, a, backend, k, temperature, semaphore, tally)
+            *(_probe(ctx, record.question, a, backend, k, temperature, semaphore, tally, agent)
               for ctx in [*contexts.values(), *loo_contexts.values()]),
         )  # fmt: skip
         runs["N"] = n_run
@@ -267,6 +270,7 @@ async def run_records(
     concurrency: int = DEFAULT_CONCURRENCY,
     out_path: str | Path | None = None,
     probes: str = "all",
+    agent: str = "context",
 ) -> list[Result]:
     """Run records, at most `concurrency` records and `concurrency` model calls in
     flight. Results are appended to out_path (JSONL) as they finish, and returned in
@@ -292,7 +296,9 @@ async def run_records(
                 done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
                 drain(done)
             donor = records[(i + 1) % len(records)].units
-            coro = run_record(record, backend, k, temperature, seed, donor, semaphore, probes)
+            coro = run_record(
+                record, backend, k, temperature, seed, donor, semaphore, probes, agent
+            )
             pending.add(asyncio.create_task(coro))
         while pending:
             done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)

@@ -67,3 +67,54 @@ def test_outcome_counts_unavailable_sweep_records_as_disagreement():
     out = experiment.outcome(section)
     assert out["k_agreement"] == 0.8
     assert out["result"] == "fail"
+
+
+def test_explore_open_agent_runs_offline(tmp_path, monkeypatch):
+    monkeypatch.setenv("POINDEXTER_CACHE", str(tmp_path / "cache.sqlite"))
+    candidates = datasets.integer_candidates("dev", path=FIXTURE)
+    asyncio.run(
+        experiment.swap_experiment(
+            FakeBackend(), tmp_path / "swap", candidates=candidates, n_unscreened=10,
+            grounded_n=10, redundant_n=3, sweep_n=3, k=1, concurrency=4,
+        )
+    )  # fmt: skip
+    screen = tmp_path / "swap" / "screen.jsonl"
+    rows = [json.loads(line) for line in screen.read_text().splitlines()]
+    screen.write_text("".join(json.dumps({**r, "majority": "same"}) + "\n" for r in rows))
+    report = asyncio.run(
+        experiment.explore_open_agent(FakeBackend(), tmp_path / "swap", tmp_path / "x", k=1)
+    )
+    assert report["memorized"] == len(candidates)
+    assert set(report) >= {"swap", "wide", "verdicts_all"}
+
+
+def test_wide_swap_is_implausible_and_unique():
+    for r in datasets.integer_candidates("dev", path=FIXTURE):
+        w = experiment.wide_swap_record(r, 0)
+        cf = w.meta["counterfactual"]
+        assert cf["swapped"] != cf["original"]
+        gold = next(u for u in w.units if u.id == r.gold[0])
+        assert cf["swapped"] in gold.text
+        assert [u.text for u in w.units if u.id != r.gold[0]] == [
+            u.text for u in r.units if u.id != r.gold[0]
+        ]
+
+
+def test_wide_swap_rejects_ambiguous_mentions():
+    import pytest
+
+    from poindexter.contract import Record, Unit
+
+    rec = Record(
+        "r", "q", [Unit("u1", "Model A1234 shipped in 1234."), Unit("u2", "Other text.")],
+        gold=["u1"], meta={"dataset_answers": ["1234"]},
+    )  # fmt: skip
+    w = experiment.wide_swap_record(rec, 0)
+    assert w.units[0].text.startswith("Model A1234 shipped in ")
+    assert "1234." not in w.units[0].text
+    dup = Record(
+        "d", "q", [Unit("u1", "It was 1234."), Unit("u2", "Also 1234.")],
+        gold=["u1"], meta={"dataset_answers": ["1234"]},
+    )  # fmt: skip
+    with pytest.raises(ValueError):
+        experiment.wide_swap_record(dup, 0)

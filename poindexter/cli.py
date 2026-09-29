@@ -141,7 +141,29 @@ def cmd_swap(args: argparse.Namespace) -> None:
     print(json.dumps(section["outcome"], indent=2))
 
 
-SUBCOMMANDS = [add_run, add_report, add_bench, add_charts, add_swap]
+def add_explore(sub: argparse._SubParsersAction) -> None:
+    p = sub.add_parser("explore", help="exploratory: audit a knowledge-permitted agent")
+    p.add_argument("swap_dir", help="a `poindexter swap` output directory (for its screen)")
+    p.add_argument("--model", help="model id (required for --backend claude)")
+    p.add_argument("--backend", choices=["claude", "fake"], default="claude")
+    p.add_argument("--k", type=int, default=3)
+    p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--concurrency", type=int, default=runner.DEFAULT_CONCURRENCY)
+    p.add_argument("--out", required=True, help="output directory")
+    p.set_defaults(func=cmd_explore)
+
+
+def cmd_explore(args: argparse.Namespace) -> None:
+    report = asyncio.run(
+        experiment.explore_open_agent(
+            make_backend(args.backend, args.model), args.swap_dir, args.out, k=args.k,
+            seed=args.seed, concurrency=args.concurrency,
+        )
+    )  # fmt: skip
+    print(json.dumps(report, indent=2))
+
+
+SUBCOMMANDS = [add_run, add_report, add_bench, add_charts, add_swap, add_explore]
 
 
 def main(argv: list[str] | None = None) -> None:
