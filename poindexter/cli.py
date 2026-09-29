@@ -12,7 +12,7 @@ import json
 from collections import Counter
 from pathlib import Path
 
-from poindexter import bench, charts, datasets, experiment, runner
+from poindexter import bench, charts, datasets, experiment, runner, surprise
 from poindexter.backend import make_backend
 from poindexter.contract import read_results
 from poindexter.prompt import AGENTS
@@ -166,7 +166,33 @@ def cmd_explore(args: argparse.Namespace) -> None:
     print(json.dumps(report, indent=2))
 
 
-SUBCOMMANDS = [add_run, add_report, add_bench, add_charts, add_swap, add_explore]
+def add_surprise(sub: argparse._SubParsersAction) -> None:
+    p = sub.add_parser("surprise", help="v2: surprise-validated verdicts (PLAN-v2.md)")
+    p.add_argument("corpus", help="corpus directory (L0/L1/L2/novel .jsonl)")
+    p.add_argument("--model", help="model id (required for --backend claude)")
+    p.add_argument("--backend", choices=["claude", "fake"], default="claude")
+    p.add_argument("--facts", type=int, default=150)
+    p.add_argument("--novel", type=int, default=50)
+    p.add_argument("--agents", default="context,open")
+    p.add_argument("--k", type=int, default=3)
+    p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--concurrency", type=int, default=runner.DEFAULT_CONCURRENCY)
+    p.add_argument("--out", required=True, help="output directory")
+    p.set_defaults(func=cmd_surprise)
+
+
+def cmd_surprise(args: argparse.Namespace) -> None:
+    report = asyncio.run(
+        surprise.surprise_experiment(
+            make_backend(args.backend, args.model), args.corpus, args.out,
+            n_facts=args.facts, n_novel=args.novel, k=args.k, seed=args.seed,
+            concurrency=args.concurrency, agents=tuple(args.agents.split(",")),
+        )
+    )  # fmt: skip
+    print(json.dumps(report, indent=2))
+
+
+SUBCOMMANDS = [add_run, add_report, add_bench, add_charts, add_swap, add_explore, add_surprise]
 
 
 def main(argv: list[str] | None = None) -> None:
