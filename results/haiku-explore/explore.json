@@ -1,0 +1,58 @@
+{
+  "model": "claude-haiku-4-5-20251001",
+  "memorized": 310,
+  "swap": {
+    "classes": {
+      "grounded": 282,
+      "excluded:other_answer": 15,
+      "decorative": 5,
+      "excluded:original_no_gold_cite": 3,
+      "excluded:no_gold_cite": 2,
+      "excluded:abstain": 2,
+      "excluded:unstable": 1
+    },
+    "confusion": {
+      "grounded": {
+        "grounded": 268,
+        "incomplete": 5,
+        "decorative": 8,
+        "unstable": 1
+      },
+      "decorative": {
+        "decorative": 1,
+        "grounded": 4
+      }
+    }
+  },
+  "wide": {
+    "classes": {
+      "grounded": 231,
+      "excluded:abstain": 19,
+      "excluded:other_answer": 19,
+      "decorative": 32,
+      "excluded:no_gold_cite": 1,
+      "excluded:original_no_gold_cite": 4,
+      "excluded:unstable": 4
+    },
+    "confusion": {
+      "grounded": {
+        "incomplete": 3,
+        "grounded": 221,
+        "decorative": 6,
+        "unstable": 1
+      },
+      "decorative": {
+        "grounded": 30,
+        "decorative": 2
+      }
+    }
+  },
+  "verdicts_all": {
+    "grounded": 286,
+    "incomplete": 10,
+    "decorative": 11,
+    "None": 2,
+    "unstable": 1
+  },
+  "parametric": 292
+}

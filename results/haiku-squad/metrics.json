@@ -1,0 +1,178 @@
+{
+  "squad": {
+    "abstained": 19,
+    "citation": {
+      "abstained": 2,
+      "n": 40,
+      "precision": 1.0,
+      "recall": 0.9875
+    },
+    "compliance": {
+      "call_rate": {
+        "hi": 0.9996893719169941,
+        "k": 1764,
+        "lo": 0.9958800285049401,
+        "n": 1766,
+        "rate": 0.9988674971687429
+      },
+      "calls": 1766,
+      "codes": {},
+      "final_rejections": 2,
+      "records": {
+        "hi": 1.0,
+        "k": 60,
+        "lo": 0.93982814785791,
+        "n": 60,
+        "rate": 1.0
+      },
+      "retries": 251
+    },
+    "correct": {
+      "hi": 0.8283297537395091,
+      "k": 30,
+      "lo": 0.5643279073180463,
+      "n": 42,
+      "rate": 0.7142857142857143
+    },
+    "flags": {
+      "fabricates": {
+        "hi": 0.3126261240040417,
+        "k": 7,
+        "lo": 0.08525251977594998,
+        "n": 41,
+        "rate": 0.17073170731707318
+      },
+      "fabricates_on_replace": {
+        "hi": 0.28443458042480957,
+        "k": 6,
+        "lo": 0.0688424814129593,
+        "n": 41,
+        "rate": 0.14634146341463414
+      },
+      "parametric": {
+        "hi": 0.16138978870370846,
+        "k": 2,
+        "lo": 0.013480945365169042,
+        "n": 41,
+        "rate": 0.04878048780487805
+      },
+      "position_sensitive": {
+        "hi": 0.22547681305523387,
+        "k": 4,
+        "lo": 0.03859708489808934,
+        "n": 41,
+        "rate": 0.0975609756097561
+      },
+      "reproduced": {
+        "hi": null,
+        "k": 0,
+        "lo": null,
+        "n": 0,
+        "rate": null
+      },
+      "span_in_cites": {
+        "hi": 0.9748021693660901,
+        "k": 38,
+        "lo": 0.8057255146228096,
+        "n": 41,
+        "rate": 0.926829268292683
+      }
+    },
+    "k": [
+      3
+    ],
+    "known_grounded": {
+      "false_alarm": {
+        "hi": 0.12455502974186705,
+        "k": 0,
+        "lo": 0.0,
+        "n": 27,
+        "rate": 0.0
+      },
+      "l_recall_n": 27,
+      "l_recall_vs_gold": 1.0,
+      "n": 27,
+      "verdicts": {
+        "decorative": 0,
+        "grounded": 26,
+        "incomplete": 1,
+        "unstable": 0
+      }
+    },
+    "models": [
+      "claude-haiku-4-5-20251001"
+    ],
+    "n": 60,
+    "parametric_rate": {
+      "hi": 0.16138978870370846,
+      "k": 2,
+      "lo": 0.013480945365169042,
+      "n": 41,
+      "rate": 0.04878048780487805
+    },
+    "status": {
+      "k_unavailable": 0,
+      "non_compliant": 0,
+      "ok": 60,
+      "unstable_original": 0
+    },
+    "unanswerable": {
+      "abstain": {
+        "hi": 0.990124809021697,
+        "k": 17,
+        "lo": 0.7424269921812741,
+        "n": 18,
+        "rate": 0.9444444444444444
+      },
+      "n": 18,
+      "non_abstain": {
+        "flags": {
+          "fabricates": {
+            "false": 0,
+            "none": 0,
+            "true": 1
+          },
+          "fabricates_on_replace": {
+            "false": 0,
+            "none": 0,
+            "true": 1
+          },
+          "parametric": {
+            "false": 1,
+            "none": 0,
+            "true": 0
+          },
+          "position_sensitive": {
+            "false": 0,
+            "none": 0,
+            "true": 1
+          },
+          "reproduced": {
+            "false": 0,
+            "none": 1,
+            "true": 0
+          },
+          "span_in_cites": {
+            "false": 0,
+            "none": 0,
+            "true": 1
+          }
+        },
+        "n": 1,
+        "verdicts": {
+          "decorative": 0,
+          "grounded": 1,
+          "incomplete": 0,
+          "unstable": 0
+        }
+      },
+      "not_ok": 0
+    },
+    "verdicts": {
+      "decorative": 1,
+      "grounded": 35,
+      "incomplete": 5,
+      "unstable": 0
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "result": "inconclusive",
+  "checks": {
+    "recall_point": null,
+    "recall_lower": null,
+    "false_alarm_point": true,
+    "false_alarm_upper": true,
+    "beats_baseline": null,
+    "class_size": false,
+    "k_agreement": true
+  },
+  "decorative_recall": {
+    "k": 0,
+    "n": 0,
+    "rate": null,
+    "lo": null,
+    "hi": null
+  },
+  "false_alarm": {
+    "k": 0,
+    "n": 150,
+    "rate": 0.0,
+    "lo": 0.0,
+    "hi": 0.0249702443680766
+  },
+  "baseline_recall": {
+    "k": 0,
+    "n": 0,
+    "rate": null,
+    "lo": null,
+    "hi": null
+  },
+  "classes": {
+    "grounded": 150,
+    "decorative": 0,
+    "excluded": 0
+  },
+  "k_agreement": 1.0
+}
