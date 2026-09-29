@@ -40,6 +40,9 @@ from poindexter.contract import (
 )
 
 SWEEP_K = 5
+# The headline ran under v1's context prompt; keeping it lets the run replay from
+# the committed cache.
+V1_AGENT = "context_v1"
 
 # THRESHOLDS.md, as committed before any evaluation run.
 MIN_CLASS = 100
@@ -106,7 +109,7 @@ async def swap_experiment(
 
     swapped = await runner.run_records(
         [datasets.swap_record(r, seed) for r in pool], backend, k, None, seed, concurrency,
-        probes="O",
+        probes="O", agent=V1_AGENT,
     )  # fmt: skip
     _write_results(out / "swapped_results.jsonl", swapped)
 
@@ -123,7 +126,7 @@ async def swap_experiment(
         f"running verdict probes on {len(originals)} originals"
     )
     original_results = await runner.run_records(
-        originals, backend, k, None, seed, concurrency, probes="verdict"
+        originals, backend, k, None, seed, concurrency, probes="verdict", agent=V1_AGENT
     )
     _write_results(out / "original_results.jsonl", original_results)
 
@@ -131,7 +134,7 @@ async def swap_experiment(
     # so O comes from the cache and the class assignment is unchanged.
     swapped_verdict = await runner.run_records(
         [datasets.swap_record(r, seed) for r in originals], backend, k, None, seed,
-        concurrency, probes="verdict",
+        concurrency, probes="verdict", agent=V1_AGENT,
     )  # fmt: skip
     by_id = {s.record.id: s for s in swapped_verdict}
     swapped = [by_id.get(s.record.id, s) for s in swapped]
@@ -145,7 +148,8 @@ async def swap_experiment(
     ]
     _log(f"[{backend.model}] redundant-evidence records: {len(redundant_records)}")
     redundant_results = await runner.run_records(
-        redundant_records, backend, k, None, seed, concurrency, probes="verdict"
+        redundant_records, backend, k, None, seed, concurrency, probes="verdict",
+        agent=V1_AGENT,
     )
     _write_results(out / "redundant_results.jsonl", redundant_results)
 
@@ -153,7 +157,8 @@ async def swap_experiment(
     sweep_records = [r for r in originals if r.id in sweep_ids]
     _log(f"[{backend.model}] k sweep on {len(sweep_records)} records at k={SWEEP_K}")
     sweep_results = await runner.run_records(
-        sweep_records, backend, SWEEP_K, None, seed, concurrency, probes="verdict"
+        sweep_records, backend, SWEEP_K, None, seed, concurrency, probes="verdict",
+        agent=V1_AGENT,
     )
     _write_results(out / "sweep_results.jsonl", sweep_results)
 
@@ -304,11 +309,11 @@ async def explore_open_agent(
         except ValueError as e:
             _log(f"[{backend.model}] skipping wide swap: {e}")
     swapped = await runner.run_records(
-        plausible + wide, backend, k, None, seed, concurrency, probes="O", agent="open"
+        plausible + wide, backend, k, None, seed, concurrency, probes="O", agent="open_v1"
     )
     _write_results(out / "swapped_results.jsonl", swapped)
     originals = await runner.run_records(
-        memorized, backend, k, None, seed, concurrency, probes="verdict", agent="open"
+        memorized, backend, k, None, seed, concurrency, probes="verdict", agent="open_v1"
     )
     _write_results(out / "original_results.jsonl", originals)
 

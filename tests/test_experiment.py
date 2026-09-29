@@ -4,6 +4,8 @@ from pathlib import Path
 
 from poindexter import datasets, experiment
 from poindexter.backend import FakeBackend
+from poindexter.contract import validate, validate_open
+from poindexter.prompt import AGENTS, CLOSED_BOOK_SYSTEM, VALIDATORS
 
 FIXTURE = Path(__file__).parent / "fixtures" / "squad_30.json"
 
@@ -12,14 +14,17 @@ def test_swap_experiment_runs_offline(tmp_path, monkeypatch):
     monkeypatch.setenv("POINDEXTER_CACHE", str(tmp_path / "cache.sqlite"))
     candidates = datasets.integer_candidates("dev", path=FIXTURE)
     assert candidates
+    backend = SystemRecorder()
     section = asyncio.run(
         experiment.swap_experiment(
-            FakeBackend(), tmp_path / "out", candidates=candidates, n_unscreened=10,
+            backend, tmp_path / "out", candidates=candidates, n_unscreened=10,
             grounded_n=10, redundant_n=3, sweep_n=3, k=1, concurrency=4,
         )
     )  # fmt: skip
     assert section["outcome"]["result"] in {"pass", "fail", "inconclusive"}
     assert section["screen"]["candidates"] == len(candidates)
+    # The v1 headline replays from the committed cache only under v1's context prompt.
+    assert set(backend.systems) - {CLOSED_BOOK_SYSTEM} == {AGENTS["context_v1"]}
     for name in ["screen.jsonl", "swapped_results.jsonl", "original_results.jsonl",
                  "metrics.json", "tables.md", "headline.json"]:  # fmt: skip
         assert (tmp_path / "out" / name).exists(), name
@@ -81,11 +86,60 @@ def test_explore_open_agent_runs_offline(tmp_path, monkeypatch):
     screen = tmp_path / "swap" / "screen.jsonl"
     rows = [json.loads(line) for line in screen.read_text().splitlines()]
     screen.write_text("".join(json.dumps({**r, "majority": "same"}) + "\n" for r in rows))
+    backend = SystemRecorder()
     report = asyncio.run(
-        experiment.explore_open_agent(FakeBackend(), tmp_path / "swap", tmp_path / "x", k=1)
+        experiment.explore_open_agent(backend, tmp_path / "swap", tmp_path / "x", k=1)
     )
     assert report["memorized"] == len(candidates)
     assert set(report) >= {"swap", "wide", "verdicts_all"}
+    # The v1 arm replays from the committed cache only under the v1 open prompt.
+    assert set(backend.systems) - {CLOSED_BOOK_SYSTEM} == {AGENTS["open_v1"]}
+
+
+class SystemRecorder(FakeBackend):
+    def __init__(self):
+        super().__init__()
+        self.systems = []
+
+    async def complete(self, system, user, temperature, sample_index):
+        self.systems.append(system)
+        return await super().complete(system, user, temperature, sample_index)
+
+
+OPEN_V1 = (
+    "You answer a question. The user provides context units retrieved for it; use them "
+    "together with your own knowledge and give the answer you believe is correct. Each unit "
+    "is one line that starts with its id in square brackets, like [u1].\n\nRespond with "
+    'exactly one JSON object and nothing else:\n{"answer": "<string or null>", "cites": '
+    '["<unit id>"], "abstain": false}\n\nRules:\n1. Use the context units and your own '
+    "knowledge.\n2. Cite the id of every unit that supports your answer, and only ids that "
+    'appear in the context.\n3. If you cannot answer, abstain: {"answer": null, "cites": [], '
+    '"abstain": true}\n4. The answer is the shortest span that answers the question: a few '
+    "words, not a sentence (a name, number, date, or short phrase), at most 200 characters."
+    "\n5. Your response is the JSON object alone, with nothing before or after it and no "
+    "explanation, including when you abstain."
+)
+
+
+CONTEXT_V1 = (
+    "You answer a question using only the context units the user provides. Each unit is one "
+    "line that starts with its id in square brackets, like [u1].\n\nRespond with exactly one "
+    'JSON object and nothing else:\n{"answer": "<string or null>", "cites": ["<unit id>"], '
+    '"abstain": false}\n\nRules:\n1. Answer only from the context units. Do not use outside '
+    "knowledge.\n2. Cite the id of every unit you relied on, and only ids that appear in the "
+    'context.\n3. If the context does not contain the answer, abstain: {"answer": null, '
+    '"cites": [], "abstain": true}\n4. The answer is the shortest span that answers the '
+    "question: a few words, not a sentence (a name, number, date, or short phrase), at most "
+    "200 characters.\n5. Your response is the JSON object alone, with nothing before or "
+    "after it and no explanation, including when you abstain."
+)
+
+
+def test_v1_prompts_are_byte_identical_and_strict():
+    assert AGENTS["open_v1"] == OPEN_V1 and AGENTS["context_v1"] == CONTEXT_V1
+    assert VALIDATORS["open_v1"] is validate and VALIDATORS["context_v1"] is validate
+    assert VALIDATORS["open"] is validate_open and VALIDATORS["context"] is validate
+    assert AGENTS["open"] != OPEN_V1 and AGENTS["context"] != CONTEXT_V1
 
 
 def test_wide_swap_is_implausible_and_unique():

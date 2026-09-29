@@ -15,6 +15,7 @@ from pathlib import Path
 from poindexter import bench, charts, datasets, experiment, runner
 from poindexter.backend import make_backend
 from poindexter.contract import read_results
+from poindexter.prompt import AGENTS
 from poindexter.report import aggregate, markdown
 from poindexter.verdict import recompute
 
@@ -29,6 +30,8 @@ def add_run(sub: argparse._SubParsersAction) -> None:
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--concurrency", type=int, default=runner.DEFAULT_CONCURRENCY)
     p.add_argument("--probes", choices=runner.PROBE_SETS, default="all")
+    p.add_argument("--agent", choices=sorted(AGENTS), default="context",
+                   help="audited agent: context-only, or open (may answer from knowledge)")
     p.add_argument("--out", required=True, help="results JSONL")
     p.set_defaults(func=cmd_run)
 
@@ -38,7 +41,7 @@ def cmd_run(args: argparse.Namespace) -> None:
     results = asyncio.run(
         runner.run_file(
             args.records, backend, args.k, args.temperature, args.seed,
-            args.concurrency, args.out, args.probes,
+            args.concurrency, args.out, args.probes, args.agent,
         )
     )  # fmt: skip
     status = Counter(r.status for r in results)

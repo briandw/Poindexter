@@ -30,10 +30,12 @@ class ScriptedBackend:
         self.model = model
         self.calls = 0
         self.prompts = []
+        self.systems = []
 
     async def complete(self, system, user, temperature, sample_index):
         self.calls += 1
         self.prompts.append(user)
+        self.systems.append(system)
         for needle, response in self.rules:
             if needle in user:
                 return response if isinstance(response, str) else response[sample_index]

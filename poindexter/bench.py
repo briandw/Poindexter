@@ -233,13 +233,15 @@ def _known_grounded(ok: list[Result]) -> dict[str, Any]:
 
 
 def _citation(ok: list[Result]) -> dict[str, Any]:
-    """Cites vs gold over answerable (gold non-empty) records that did not abstain."""
+    """Cites vs gold over answerable (gold non-empty) records that did not abstain.
+    Precision is over cited answers only (an open agent's answer may cite nothing)."""
     answerable = [r for r in ok if r.record.gold]
     answered = [r for r in answerable if r.A is not None and not r.A.abstain]
     precision, recall = [], []
     for r in answered:
         gold, cites = set(r.record.gold or []), set(r.A.cites)
-        precision.append(len(cites & gold) / len(cites))
+        if cites:
+            precision.append(len(cites & gold) / len(cites))
         recall.append(len(cites & gold) / len(gold))
     return {
         "n": len(answered),
