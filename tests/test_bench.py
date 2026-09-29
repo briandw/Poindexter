@@ -11,9 +11,11 @@ from poindexter.bench import (
     evaluate,
     evaluate_redundant,
     evaluate_swap,
+    is_correct,
     is_known_grounded,
     k_sweep,
     rate,
+    swap_class,
     tables,
     wilson,
     write_metrics,
@@ -78,7 +80,9 @@ def test_evaluate_by_hand():
     assert list(m) == ["hotpotqa", "squad"]
     s = m["squad"]
     assert s["n"] == 8 and s["models"] == ["haiku"]
-    assert s["status"] == {"ok": 7, "non_compliant": 1, "unstable_original": 0}
+    assert s["status"] == {
+        "ok": 7, "non_compliant": 1, "unstable_original": 0, "k_unavailable": 0
+    }
     approx_rate(s["compliance"]["records"], 7, 8)
     assert s["compliance"]["calls"] == 80 and s["compliance"]["retries"] == 2
     approx_rate(s["compliance"]["call_rate"], 79, 80)
@@ -364,3 +368,33 @@ def test_check_thresholds():
     assert (low["point"], low["interval"]) == ("fail", "fail")
     with pytest.raises(ValueError):
         check_thresholds(m, {"false_alarm": {"below": 0.3}})
+
+
+# --- numeric equivalence and k_unavailable (P1 follow-up) -------------------------
+
+
+def test_swap_numeric_equivalence():
+    """'in 1814' is the swapped value 1814; 'in 1850' is the original value 1850."""
+    orig, swapped = swap_pair("n1", "grounded", [ans("in 1814", "u2")] * 3,
+                              orig_text="in 1850")  # fmt: skip
+    swapped.record.meta["counterfactual"]["swapped"] = "1814"
+    assert classify_swaps([orig], [swapped]) == {"n1": ("grounded", None)}
+    assert is_correct(orig)
+    _, back = swap_pair("n2", "grounded", [ans("the year 1850", "u2")] * 3)
+    assert swap_class(back) == ("decorative", None)
+
+
+def test_k_sweep_counts_k_unavailable_apart():
+    def recompute(r, k):
+        out = toy_recompute(r, k)
+        if r.record.id == "b" and k == 1:
+            return dataclasses.replace(out, status="k_unavailable", verdict=None)
+        return out
+
+    ks = k_sweep(sweep_results(), recompute)
+    assert ks["n"] == 4 and ks["unavailable"] == 1
+    assert ks["unavailable_by_k"] == {"1": 1, "3": 0, "5": 0}
+    approx_rate(ks["agreement"]["1"], 2, 4)
+    approx_rate(ks["agreement"]["3"], 3, 4)
+    assert "1 unavailable" in tables({"squad": {**evaluate(sweep_results())["squad"],
+                                                    "k_sweep": ks}})  # fmt: skip

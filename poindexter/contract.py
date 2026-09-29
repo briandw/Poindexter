@@ -223,6 +223,44 @@ def normalize(s: str) -> str:
     return " ".join(s.split())
 
 
+_NUMBER_WORDS = (
+    "zero one two three four five six seven eight nine ten eleven twelve thirteen "
+    "fourteen fifteen sixteen seventeen eighteen nineteen twenty"
+).split()
+_THOUSANDS = re.compile(r"\b\d{1,3}(?:,\d{3})+\b")
+_NUMBER = re.compile(
+    r"\d+(?:\.\d+)?|\b(?:" + "|".join(_NUMBER_WORDS) + r")\b", re.IGNORECASE
+)
+# A magnitude word changes the value ("one hundred", "1 million"), so such text is not
+# reduced to its single number.
+_MAGNITUDE = re.compile(
+    r"\b(?:hundred|thousand|million|billion|trillion|dozen|score)s?\b", re.IGNORECASE
+)
+_MINUS = "-\u2212"
+
+
+def canonical(s: str) -> str:
+    """The equivalence key for answers.
+
+    Text holding exactly one number (a digit run, thousands separators folded, a decimal
+    kept as written, or a number word zero..twenty) is "#<number>", so "two atoms",
+    "in 2", and "2" are equal. Anything else is normalize(s), including text with a
+    magnitude word ("one hundred", "1 million") or a minus sign attached to the number
+    ("-1"). The "#" cannot occur in normalize output, so the two kinds never collide.
+    """
+    folded = _THOUSANDS.sub(lambda m: m.group().replace(",", ""), s)
+    numbers = list(_NUMBER.finditer(folded))
+    if len(numbers) != 1 or _MAGNITUDE.search(folded):
+        return normalize(s)
+    start = numbers[0].start()
+    if start > 0 and folded[start - 1] in _MINUS:
+        return normalize(s)
+    n = numbers[0].group().lower()
+    if n in _NUMBER_WORDS:
+        return f"#{_NUMBER_WORDS.index(n)}"
+    return f"#{n}" if "." in n else f"#{int(n)}"
+
+
 def span_in_cites(answer: Answer, units: list[Unit]) -> bool:
     if answer.text is None:
         return False
@@ -234,12 +272,13 @@ def outcome_of(sample: Answer | None, a: Answer) -> str:
     """Outcome of one probe sample relative to the original answer A.
 
     None is a sample rejected twice by the validator; it counts as `other`.
+    Equivalence is `canonical` equality.
     """
     if sample is None:
         return OTHER
     if sample.abstain:
         return ABSTAIN
-    if a.text is not None and normalize(sample.text or "") == normalize(a.text):
+    if a.text is not None and canonical(sample.text or "") == canonical(a.text):
         return SAME
     return OTHER
 

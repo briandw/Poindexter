@@ -15,7 +15,7 @@ from collections.abc import Callable, Iterable
 from pathlib import Path
 from typing import Any
 
-from poindexter.contract import UNSTABLE, ProbeRun, Result, normalize
+from poindexter.contract import UNSTABLE, ProbeRun, Result, canonical
 
 GROUNDED = "grounded"
 DECORATIVE = "decorative"
@@ -29,7 +29,7 @@ FLAGS = (
     "span_in_cites",
     "reproduced",
 )
-STATUSES = ("ok", "non_compliant", "unstable_original")
+STATUSES = ("ok", "non_compliant", "unstable_original", "k_unavailable")
 
 EXCLUDED = "excluded"
 SWAP_CLASSES = (GROUNDED, DECORATIVE)
@@ -112,10 +112,10 @@ def _dataset_answers(r: Result) -> list[str]:
 
 
 def is_correct(r: Result) -> bool:
-    """normalize(A.text) is in the normalized dataset answers."""
+    """A.text is `canonical`-equal to one of the dataset answers."""
     if r.A is None or r.A.abstain or r.A.text is None:
         return False
-    return normalize(r.A.text) in {normalize(a) for a in _dataset_answers(r)}
+    return canonical(r.A.text) in {canonical(a) for a in _dataset_answers(r)}
 
 
 def _cites_gold(r: Result) -> bool:
@@ -186,14 +186,16 @@ def _section(rs: list[Result]) -> dict[str, Any]:
 
 def _compliance(rs: list[Result]) -> dict[str, Any]:
     nc = [r for r in rs if r.status == "non_compliant"]
-    calls = sum(r.compliance["calls"] for r in rs)
     final = sum(r.compliance["final_rejections"] for r in rs)
+    # Recomputed results cannot know their retries; then calls and retries are None.
+    known = all(r.compliance["calls"] is not None for r in rs)
+    calls = sum(r.compliance["calls"] for r in rs) if known else None
     return {
         "records": rate(len(rs) - len(nc), len(rs)),
         "calls": calls,
-        "retries": sum(r.compliance["retries"] for r in rs),
+        "retries": sum(r.compliance["retries"] for r in rs) if known else None,
         "final_rejections": final,
-        "call_rate": rate(calls - final, calls),
+        "call_rate": rate(calls - final, calls) if calls is not None else None,
         "codes": dict(sorted(Counter(r.compliance["code"] for r in nc).items())),
     }
 
@@ -280,9 +282,12 @@ def k_sweep(
 ) -> dict[str, Any]:
     """Verdict agreement of each k with the largest k, over `ok` results.
 
-    `recompute(result, k)` recomputes outcomes, verdict, and flags from the first k
-    samples (`poindexter.verdict.recompute`). A verdict of None after recompute
-    (the original became unstable) counts as its own value.
+    `recompute(result, k)` rebuilds a result from the first k samples
+    (`poindexter.verdict.recompute`). A record whose A at some k differs from the full
+    run's comes back `k_unavailable` (its probe contexts would differ); such records
+    are counted in `unavailable` and left out of every agreement, so all ks are compared
+    over the same records. A verdict of None after recompute (the original became
+    non-compliant or unstable at that k) counts as its own value.
     """
     ks = tuple(sorted(set(ks)))
     ref_k = ks[-1]
@@ -290,16 +295,25 @@ def k_sweep(
     short = [r.record.id for r in ok if r.k < ref_k]
     if short:
         raise ValueError(f"k_sweep: {len(short)} results have k < {ref_k}, e.g. {short[0]}")
-    ref = [recompute(r, ref_k).verdict for r in ok]
+    per_k = {k: [recompute(r, k) for r in ok] for k in ks}
+    unavailable_by_k = {
+        str(k): sum(x.status == "k_unavailable" for x in per_k[k]) for k in ks
+    }
+    keep = [
+        i for i in range(len(ok)) if all(per_k[k][i].status != "k_unavailable" for k in ks)
+    ]
+    ref = [per_k[ref_k][i].verdict for i in keep]
     agreement, changed, transitions = {}, {}, {}
     for k in ks:
-        got = [recompute(r, k).verdict for r in ok]
+        got = [per_k[k][i].verdict for i in keep]
         diff = [(a, b) for a, b in zip(ref, got, strict=True) if a != b]
         changed[str(k)] = len(diff)
-        agreement[str(k)] = rate(len(ok) - len(diff), len(ok))
+        agreement[str(k)] = rate(len(keep) - len(diff), len(keep))
         transitions[str(k)] = dict(sorted(Counter(f"{a}->{b}" for a, b in diff).items()))
     return {
-        "n": len(ok),
+        "n": len(keep),
+        "unavailable": len(ok) - len(keep),
+        "unavailable_by_k": unavailable_by_k,
         "reference_k": ref_k,
         "ks": list(ks),
         "agreement": agreement,
@@ -325,13 +339,13 @@ def _swap_source_id(s: Result) -> str:
 def swap_class(swapped: Result) -> tuple[str, str | None]:
     """Constructed class from the swapped record's O samples: (class, exclusion reason).
 
-    The majority is over each sample's normalized answer text; abstentions and
+    The majority is over each sample's `canonical` answer text; abstentions and
     rejected samples are their own values. `grounded`: the majority answer is the
     swapped value and a strict majority of all samples both give it and cite a gold
     unit. `decorative`: the majority answer is the original value.
     """
     cf = _meta(swapped)["counterfactual"]
-    original, new = normalize(str(cf["original"])), normalize(str(cf["swapped"]))
+    original, new = canonical(str(cf["original"])), canonical(str(cf["swapped"]))
     if original == new:
         raise ValueError(f"record {swapped.record.id}: swapped value equals original")
     o: ProbeRun | None = swapped.probes.get("O")
@@ -344,7 +358,7 @@ def swap_class(swapped: Result) -> tuple[str, str | None]:
         elif a.abstain:
             keys.append(("abstain", None))
         else:
-            keys.append(("answer", normalize(a.text or "")))
+            keys.append(("answer", canonical(a.text or "")))
     (kind, text), count = Counter(keys).most_common(1)[0]
     if count * 2 <= len(keys):
         return EXCLUDED, "unstable"
@@ -369,7 +383,7 @@ def _answers_original(original: Result, swapped: Result) -> bool:
     a = original.A
     if a is None or a.abstain or a.text is None:
         return False
-    return normalize(a.text) == normalize(str(_meta(swapped)["counterfactual"]["original"]))
+    return canonical(a.text) == canonical(str(_meta(swapped)["counterfactual"]["original"]))
 
 
 def classify_swaps(
@@ -678,7 +692,11 @@ def _k_sweep_table(ks: dict[str, Any]) -> str:
         [k, fmt_rate(ks["agreement"][k]), ks["changed"][k], _kv(ks["transitions"][k])]
         for k in map(str, ks["ks"])
     ]
-    return f"### k sweep (reference k={ks['reference_k']})\n\n" + _table(
+    return (
+        f"### k sweep (reference k={ks['reference_k']})\n\n"
+        f"{ks['n']} records available at every k; {ks['unavailable']} unavailable "
+        f"(A changes at some k: {_kv(ks['unavailable_by_k'])}).\n\n"
+    ) + _table(
         ["k", "agreement with reference", "changed", "transitions"], rows
     )
 
