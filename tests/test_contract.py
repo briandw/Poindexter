@@ -13,6 +13,7 @@ from poindexter.contract import (
     Rejection,
     Result,
     Unit,
+    canonical,
     majority,
     normalize,
     outcome_of,
@@ -160,3 +161,44 @@ def test_supplied_answer_must_satisfy_contract():
             Record.from_json({**base, "answer": answer})
     with pytest.raises(ValueError):
         Record.from_json({**base, "answer": None})
+
+
+@pytest.mark.parametrize(
+    "a,b",
+    [("two atoms", "2"), ("in 1791", "1791"), ("1,000 men", "1000"), ("Twenty", "20"),
+     ("1791.", "the year 1791"), ("3.5", "3.5 km")],
+)  # fmt: skip
+def test_canonical_numbers_equal(a, b):
+    assert canonical(a) == canonical(b)
+
+
+def test_canonical_other_cases():
+    assert canonical("3.5") != canonical("35")
+    assert canonical("1791 and 1792") == normalize("1791 and 1792")
+    assert canonical("The Normans") == "normans"
+    assert canonical("10th and 11th centuries") == "10th and 11th centuries"
+    assert canonical("1791") != canonical("1792")
+
+
+def test_outcome_uses_canonical_and_span_stays_text():
+    a = Answer("in 1791", ["u1"], False)
+    assert outcome_of(Answer("1791", ["u1"], False), a) == SAME
+    assert outcome_of(Answer("1792", ["u1"], False), a) == OTHER
+    units = [Unit("u1", "It opened in 1791.")]
+    assert not span_in_cites(Answer("seventeen ninety-one", ["u1"], False), units)
+    assert not span_in_cites(Answer("two", ["u1"], False), [Unit("u1", "It had 2 wings.")])
+
+
+@pytest.mark.parametrize(
+    "a,b",
+    [("one hundred", "1"), ("1 million", "1"), ("two dozen", "2"), ("3 thousand", "3"),
+     ("four score", "4"), ("-1", "1"), ("\u22121", "1"), ("-1 degrees", "1 degree")],
+)  # fmt: skip
+def test_canonical_magnitude_and_minus_are_not_numbers(a, b):
+    assert canonical(a) != canonical(b)
+    assert canonical(a) == normalize(a)
+
+
+def test_canonical_hyphen_between_words_is_not_minus():
+    assert canonical("twenty-one") == normalize("twenty-one")  # two number words
+    assert canonical("a 2-hour wait") == canonical("2")
