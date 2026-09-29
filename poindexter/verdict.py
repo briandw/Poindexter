@@ -1,4 +1,5 @@
-"""Verdicts, flags, and alignment from probe outcomes (the tables in PLAN.md).
+"""Verdicts, flags, and alignment from probe outcomes (the tables in PLAN.md), and
+probe C's verdict (PLAN-v2.md).
 
 `recompute(result, k)` re-derives all of it from the first k stored samples, with no
 model calls. It is how `report --k` and the k sweep work.
@@ -11,6 +12,7 @@ from dataclasses import replace
 from typing import Any
 
 from poindexter.contract import (
+    FOLLOWS,
     OTHER,
     SAME,
     UNSTABLE,
@@ -19,11 +21,13 @@ from poindexter.contract import (
     Result,
     Unit,
     canonical,
+    counterfactual_outcome,
     majority,
     outcome_of,
     span_in_cites,
     validate,
 )
+from poindexter.probes import counterfactual_plan
 
 DECORATIVE = "decorative"
 GROUNDED = "grounded"
@@ -67,6 +71,26 @@ def score(raw: list[str], parsed: list[Answer | None], a: Answer) -> ProbeRun:
     outcomes = [outcome_of(p, a) for p in parsed]
     rejections = sum(p is None for p in parsed)
     return ProbeRun(list(raw), list(parsed), outcomes, majority(outcomes), rejections)
+
+
+def score_counterfactual(
+    raw: list[str], parsed: list[Answer | None], a: Answer, replacement: str
+) -> ProbeRun:
+    """Probe C's ProbeRun: outcomes `follows`/`same`/`abstain`/`other`, strict majority."""
+    outcomes = [counterfactual_outcome(p, a, replacement) for p in parsed]
+    rejections = sum(p is None for p in parsed)
+    return ProbeRun(list(raw), list(parsed), outcomes, majority(outcomes), rejections)
+
+
+def counterfactual_verdict(c_majority: str) -> str:
+    """Probe C: majority `follows` is grounded, majority `same` decorative, else unstable."""
+    return {FOLLOWS: GROUNDED, SAME: DECORATIVE}.get(c_majority, UNSTABLE)
+
+
+def counterfactual_run(result: Result) -> ProbeRun | None:
+    """Probe C's samples, when C ran and was applicable."""
+    cf = result.counterfactual
+    return ProbeRun.from_json(cf["run"]) if cf and cf.get("run") else None
 
 
 def verdict(majorities: dict[str, str]) -> str:
@@ -124,11 +148,13 @@ def _position_sensitive(o_run: ProbeRun, s_run: ProbeRun) -> bool:
 
 
 def alignment(cites: list[str], loo_majorities: dict[str, str]) -> dict[str, Any]:
-    """load_bearing = units whose removal changes the answer (L_i majority not same)."""
+    """load_bearing = units whose removal changes the answer (L_i majority not same).
+    Precision is undefined (None) for an uncited answer, recall when nothing is
+    load-bearing."""
     load_bearing = [uid for uid, m in loo_majorities.items() if m != SAME]
     hit = len(set(cites) & set(load_bearing))
     return {
-        "precision": hit / len(cites),
+        "precision": hit / len(cites) if cites else None,
         "recall": hit / len(load_bearing) if load_bearing else None,
         "load_bearing": load_bearing,
     }
@@ -138,9 +164,14 @@ def finish(result: Result) -> Result:
     """Fill verdict, flags, and alignment from the probe runs of an `ok` result.
 
     An abstained A has no citations to judge, and an O-only run has nothing to judge
-    with, so neither gets a verdict.
+    with, so neither gets a verdict. Probe C's verdict, when C ran and was applicable,
+    goes in result.counterfactual.
     """
     a = result.A
+    c_run = counterfactual_run(result)
+    if c_run is not None:
+        c_verdict = counterfactual_verdict(c_run.majority)
+        result.counterfactual = {**result.counterfactual, "verdict": c_verdict}
     if result.status != "ok" or a is None or a.abstain or "R_remove" not in result.probes:
         return result
     result.verdict = verdict({n: p.majority for n, p in result.probes.items()})
@@ -171,7 +202,7 @@ def recompute(result: Result, k: int) -> Result:
         status, a = pick_answer(parsed)
     out = replace(
         result, k=k, status=status, A=a, probes={}, loo={},
-        verdict=None, flags=None, alignment=None,
+        verdict=None, flags=None, alignment=None, counterfactual=None,
     )  # fmt: skip
     if a is None:  # non_compliant or unstable_original at k: only O ran
         out.probes = {"O": ProbeRun(raw, parsed, [], UNSTABLE, sum(p is None for p in parsed))}
@@ -185,8 +216,28 @@ def recompute(result: Result, k: int) -> Result:
         return out
     out.probes = {n: score(p.raw[:k], p.parsed[:k], a) for n, p in result.probes.items()}
     out.loo = {u: score(p.raw[:k], p.parsed[:k], a) for u, p in result.loo.items()}
+    if result.counterfactual is not None:
+        out.counterfactual = _k_counterfactual(result, a, k)
     out.compliance = _k_compliance(out, None)
     return finish(out)
+
+
+def _k_counterfactual(result: Result, a: Answer, k: int) -> dict[str, Any]:
+    """Probe C at k: the plan for the k-sample A, with the stored C samples rescored only
+    when that plan edits the same span of the same unit to the same replacement. A
+    canonically equal A can still edit a different span ("The Hague" vs "Hague"); then C
+    would have run on a different context, and it is unavailable (`k_changed_target`)."""
+    stored = result.counterfactual
+    plan, _ = counterfactual_plan(result.record, a, stored["seed"])
+    c_run = counterfactual_run(result)
+    same_edit = all(plan[f] == stored[f] for f in ("applicable", "target", "replacement"))
+    if not same_edit:
+        return {**plan, "applicable": False, "reason": "k_changed_target",
+                "replacement": None, "target": None}  # fmt: skip
+    if c_run is None:
+        return plan
+    c_k = score_counterfactual(c_run.raw[:k], c_run.parsed[:k], a, stored["replacement"])
+    return {**plan, "run": c_k.to_json()}
 
 
 def _same_answer(a: Answer, b: Answer | None) -> bool:
@@ -211,7 +262,8 @@ def _rejection_code(result: Result, raw: list[str], parsed: list[Answer | None])
 
 
 def _k_compliance(out: Result, code: str | None) -> dict[str, Any]:
-    runs = [*out.probes.values(), *out.loo.values()]
+    c_run = counterfactual_run(out)
+    runs = [*out.probes.values(), *out.loo.values(), *([c_run] if c_run else [])]
     return {
         "calls": None,
         "retries": None,

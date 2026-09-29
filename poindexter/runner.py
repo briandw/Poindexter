@@ -27,13 +27,15 @@ from poindexter.contract import (
     canonical,
     majority,
     read_records,
-    validate,
 )
-from poindexter.prompt import build_closed_book_prompt, build_prompt, retry_prompt
+from poindexter.probes import counterfactual_plan
+from poindexter.prompt import VALIDATORS, build_closed_book_prompt, build_prompt, retry_prompt
 from poindexter.prompt import validate_closed_book as _validate_closed_book
-from poindexter.verdict import finish, pick_answer, score
+from poindexter.verdict import finish, pick_answer, score, score_counterfactual
 
-PROBE_SETS = ("all", "verdict", "O")
+PROBE_SETS = ("all", "verdict", "verdict+C", "O")
+# The probe sets that include probe C.
+C_SETS = ("all", "verdict+C")
 DEFAULT_CONCURRENCY = 16
 
 Validator = Callable[[str], Answer | Rejection]
@@ -116,12 +118,17 @@ async def _probe(
     semaphore: asyncio.Semaphore,
     tally: _Tally,
     agent: str = "context",
+    replacement: str | None = None,
 ) -> ProbeRun:
+    """k samples of one context under `agent`'s prompt and validator, scored vs A (and,
+    for probe C, vs the replacement)."""
     system, user = build_prompt(units, question, agent)
-    ids = {u.id for u in units}
+    ids, check = {u.id for u in units}, VALIDATORS[agent]
     raw, parsed, _ = await _sample(
-        backend, system, user, lambda r: validate(r, ids), k, temperature, semaphore, tally
+        backend, system, user, lambda r: check(r, ids), k, temperature, semaphore, tally
     )
+    if replacement is not None:
+        return score_counterfactual(raw, parsed, a, replacement)
     return score(raw, parsed, a)
 
 
@@ -152,7 +159,8 @@ async def run_probe(
     temperature: float | None,
     semaphore: asyncio.Semaphore,
 ) -> ProbeRun:
-    """k samples of one context, validated against that context's unit ids, scored vs A."""
+    """k samples of one context under the context agent, validated against that context's
+    unit ids, scored vs A."""
     return await _probe(context_units, question, A, backend, k, temperature, semaphore, _Tally())
 
 
@@ -167,19 +175,29 @@ async def run_record(
     probes: str = "all",
     agent: str = "context",
 ) -> Result:
-    """Audit one record. `agent` picks the audited agent's prompt (prompt.AGENTS).
-    probes="verdict" runs only O, N, R_remove, M. probes="O" runs
-    only O (A and status as usual) and gives no verdict, flags, or alignment."""
+    """Audit one record. `agent` picks the audited agent's prompt and validator
+    (prompt.AGENTS, prompt.VALIDATORS) for every probe but N. probes="verdict" runs only
+    O, N, R_remove, M; "verdict+C" adds probe C; "all" runs everything, C included.
+    probes="O" runs only O (A and status as usual) and gives no verdict, flags, or
+    alignment."""
     if probes not in PROBE_SETS:
         raise ValueError(f"probes must be one of {PROBE_SETS}, got {probes!r}")
+    if agent not in VALIDATORS:
+        raise ValueError(f"agent must be one of {sorted(VALIDATORS)}, got {agent!r}")
     if k < 1:
         raise ValueError(f"k must be at least 1, got {k}")
     supplied = record.answer is not None
+    if record.answer is not None and not record.answer.abstain and not record.answer.cites:
+        if agent != "open":
+            raise ValueError(
+                f"record {record.id}: supplied answer cites nothing, which only the open "
+                f"agent may do; got agent {agent!r}"
+            )
     tally = _Tally()
     system, user = build_prompt(record.units, record.question, agent)
-    ids = record.unit_ids
+    ids, check = record.unit_ids, VALIDATORS[agent]
     raw, parsed, codes = await _sample(
-        backend, system, user, lambda r: validate(r, ids), k, temperature, semaphore, tally
+        backend, system, user, lambda r: check(r, ids), k, temperature, semaphore, tally
     )
     base = Result(
         record=record, model=backend.model, k=k, temperature=temperature, status="ok",
@@ -200,6 +218,10 @@ async def run_record(
 
     base.A = a
     runs = {"O": score(raw, parsed, a)}
+    c_run: ProbeRun | None = None
+    c_context: list[Unit] | None = None
+    if probes in C_SETS:
+        base.counterfactual, c_context = counterfactual_plan(record, a, seed)
     if not a.abstain and probes != "O":
         units, cites = record.units, a.cites
         contexts = {
@@ -211,18 +233,28 @@ async def run_record(
             contexts["R_replace"] = probe_fns.replace_cited(units, cites, seed, donor_units)
             contexts["S"] = probe_fns.shuffle(units, cites, seed)
             loo_contexts = {u.id: probe_fns.leave_one_out(units, i) for i, u in enumerate(units)}
-        n_run, *done = await asyncio.gather(
+        coros = [
             _n_probe(record.question, a, backend, k, temperature, semaphore, tally),
             *(_probe(ctx, record.question, a, backend, k, temperature, semaphore, tally, agent)
               for ctx in [*contexts.values(), *loo_contexts.values()]),
-        )  # fmt: skip
+        ]  # fmt: skip
+        if c_context is not None:
+            replacement = base.counterfactual["replacement"]
+            coros.append(_probe(
+                c_context, record.question, a, backend, k, temperature, semaphore, tally,
+                agent, replacement,
+            ))  # fmt: skip
+        n_run, *done = await asyncio.gather(*coros)
+        if c_context is not None:
+            c_run = done.pop()
+            base.counterfactual = {**base.counterfactual, "run": c_run.to_json()}
         runs["N"] = n_run
         runs.update(zip(contexts, done[: len(contexts)], strict=True))
         base.loo = dict(zip(loo_contexts, done[len(contexts) :], strict=True))
     base.probes = {n: runs[n] for n in PROBES if n in runs}
-    base.compliance = _compliance(tally, [*base.probes.values(), *base.loo.values()], None)
+    all_runs = [*base.probes.values(), *base.loo.values(), *([c_run] if c_run else [])]
+    base.compliance = _compliance(tally, all_runs, None)
     return base if probes == "O" else finish(base)
-
 
 
 def _compliance(tally: _Tally, runs: list[ProbeRun], code: str | None) -> dict:
@@ -320,7 +352,8 @@ async def run_file(
     concurrency: int = DEFAULT_CONCURRENCY,
     out_path: str | Path | None = None,
     probes: str = "all",
+    agent: str = "context",
 ) -> list[Result]:
     return await run_records(
-        read_records(path), backend, k, temperature, seed, concurrency, out_path, probes
+        read_records(path), backend, k, temperature, seed, concurrency, out_path, probes, agent
     )

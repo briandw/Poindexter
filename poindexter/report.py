@@ -68,7 +68,8 @@ def aggregate(results: list[Result]) -> dict[str, Any]:
         },
         "alignment": {
             "records": len(aligned),
-            "mean_precision": _mean([a["precision"] for a in aligned]),
+            "mean_precision": _mean([a["precision"] for a in aligned
+                                     if a["precision"] is not None]),
             "mean_recall": _mean(recalls),
             "recall_defined": len(recalls),
         },

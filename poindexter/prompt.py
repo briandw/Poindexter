@@ -1,10 +1,24 @@
-"""The prompts: one for answering from context, one closed-book prompt for screening."""
+"""The prompts: the audited agents' prompts (AGENTS) with their validators (VALIDATORS),
+and one closed-book prompt for screening.
+
+The *_v1 agents are v1's prompts, byte-identical, so v1's committed results replay from
+the committed cache. v2's agents add a rule for conflicting context."""
 
 from __future__ import annotations
 
-from poindexter.contract import MAX_ANSWER_CHARS, Answer, Rejection, Unit, _extract_object
+from collections.abc import Callable
 
-SYSTEM = f"""\
+from poindexter.contract import (
+    MAX_ANSWER_CHARS,
+    Answer,
+    Rejection,
+    Unit,
+    _extract_object,
+    validate,
+    validate_open,
+)
+
+SYSTEM_V1 = f"""\
 You answer a question using only the context units the user provides. Each unit is \
 one line that starts with its id in square brackets, like [u1].
 
@@ -21,9 +35,11 @@ sentence (a name, number, date, or short phrase), at most {MAX_ANSWER_CHARS} cha
 5. Your response is the JSON object alone, with nothing before or after it and no \
 explanation, including when you abstain."""
 
-# The exploratory arm audits a different agent: one allowed to use its own knowledge
-# alongside the context, as many retrieval-augmented systems are.
-OPEN_SYSTEM = SYSTEM.replace(
+# The v1 exploratory arm's open agent: may use its own knowledge alongside the context,
+# as many retrieval-augmented systems do, but its rules and the strict validator give an
+# answer from memory no honest way to cite nothing. Kept byte-identical so v1's
+# committed results replay from the committed cache.
+OPEN_SYSTEM_V1 = SYSTEM_V1.replace(
     "You answer a question using only the context units the user provides.",
     "You answer a question. The user provides context units retrieved for it; use them "
     "together with your own knowledge and give the answer you believe is correct.",
@@ -38,7 +54,46 @@ OPEN_SYSTEM = SYSTEM.replace(
     "3. If the context does not contain the answer, abstain:",
     "3. If you cannot answer, abstain:",
 )
-AGENTS = {"context": SYSTEM, "open": OPEN_SYSTEM}
+CONFLICT_RULE = (
+    'If the context gives conflicting answers, answer with each value separated by " / " '
+    "and cite every unit that states one."
+)
+
+
+def _with_conflict_rule(system: str) -> str:
+    """A v1 agent prompt with CONFLICT_RULE as rule 4, and rules 4 and 5 moved down."""
+    out = system.replace("\n5. Your response", "\n6. Your response").replace(
+        "\n4. The answer is", f"\n4. {CONFLICT_RULE}\n5. The answer is"
+    )
+    if out.count(CONFLICT_RULE) != 1 or "\n6. Your response" not in out:
+        raise AssertionError("prompt rules are not numbered as expected")
+    return out
+
+
+# v2's context agent: v1's, plus the conflict rule.
+SYSTEM = _with_conflict_rule(SYSTEM_V1)
+# v2's open agent: the conflict rule, and an answer from its own knowledge is expressible
+# honestly as "cites": [], which validate_open accepts.
+OPEN_SYSTEM = _with_conflict_rule(OPEN_SYSTEM_V1).replace(
+    "2. Cite the id of every unit that supports your answer, and only ids that appear in the "
+    "context.",
+    "2. Cite the ids of the units that support your answer, and only ids that appear in the "
+    'context. If the answer comes from your own knowledge rather than the context, use "cites": '
+    "[].",
+)
+AGENTS = {
+    "context": SYSTEM,
+    "open": OPEN_SYSTEM,
+    "context_v1": SYSTEM_V1,
+    "open_v1": OPEN_SYSTEM_V1,
+}
+# Each agent's validator, called with (raw response, context unit ids).
+VALIDATORS: dict[str, Callable[[str, set[str]], Answer | Rejection]] = {
+    "context": validate,
+    "open": validate_open,
+    "context_v1": validate,
+    "open_v1": validate,
+}
 
 CLOSED_BOOK_SYSTEM = f"""\
 You answer a question from your own knowledge. No context is provided.

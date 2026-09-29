@@ -17,6 +17,8 @@ SAME = "same"
 ABSTAIN = "abstain"
 OTHER = "other"
 UNSTABLE = "unstable"
+# Probe C only: the sample's answer is the counterfactual replacement value.
+FOLLOWS = "follows"
 
 # Probe keys in Result.probes. Leave-one-out runs live in Result.loo, keyed by unit id.
 PROBES = ("O", "N", "R_remove", "R_replace", "M", "S")
@@ -66,8 +68,11 @@ class Record:
         if len(ids) != len(set(ids)):
             raise ValueError(f"record {self.id}: unit id collision in {ids}")
         if self.answer is not None:
+            # cites [] is allowed here; only the open agent may be audited with it, which
+            # run_record enforces, since a Record does not know its agent.
             checked = _check_answer(
-                self.answer.text, self.answer.cites, self.answer.abstain, self.unit_ids
+                self.answer.text, self.answer.cites, self.answer.abstain, self.unit_ids,
+                uncited_ok=True,
             )
             if isinstance(checked, Rejection):
                 raise ValueError(
@@ -173,17 +178,34 @@ def _extract_object(raw: str) -> dict[str, Any] | Rejection:
 
 
 def validate(raw: str, unit_ids: set[str]) -> Answer | Rejection:
+    return _validate(raw, unit_ids, uncited_ok=False)
+
+
+def validate_open(raw: str, unit_ids: set[str]) -> Answer | Rejection:
+    """The open agent's validator: `validate`, except that an answer may cite nothing.
+
+    The open agent may answer from its own knowledge, and `cites: []` is how it says so.
+    Every other rule is unchanged.
+    """
+    return _validate(raw, unit_ids, uncited_ok=True)
+
+
+def _validate(raw: str, unit_ids: set[str], uncited_ok: bool) -> Answer | Rejection:
     obj = _extract_object(raw)
     if isinstance(obj, Rejection):
         return obj
     if set(obj) != {"answer", "cites", "abstain"}:
         got = sorted(obj)
         return Rejection("BAD_KEYS", f"keys must be exactly answer, cites, abstain; got {got}")
-    return _check_answer(obj["answer"], obj["cites"], obj["abstain"], unit_ids)
+    return _check_answer(obj["answer"], obj["cites"], obj["abstain"], unit_ids, uncited_ok)
 
 
-def _check_answer(answer: Any, cites: Any, abstain: Any, unit_ids: set[str]) -> Answer | Rejection:
-    """The contract rules on already-extracted values, shared by validate and supplied answers."""
+def _check_answer(
+    answer: Any, cites: Any, abstain: Any, unit_ids: set[str], uncited_ok: bool = False
+) -> Answer | Rejection:
+    """The contract rules on already-extracted values, shared by validate and supplied answers.
+
+    uncited_ok lets a non-abstaining answer have empty cites (the open agent only)."""
     if not isinstance(abstain, bool):
         return Rejection("BAD_ABSTAIN", "abstain must be true or false")
     if abstain:
@@ -199,7 +221,7 @@ def _check_answer(answer: Any, cites: Any, abstain: Any, unit_ids: set[str]) -> 
         return Rejection("BAD_ANSWER", "abstain is false, so answer must be a non-empty string")
     if len(answer) > MAX_ANSWER_CHARS:
         return Rejection("BAD_ANSWER", f"answer is over {MAX_ANSWER_CHARS} characters")
-    if not cites:
+    if not cites and not uncited_ok:
         return Rejection("BAD_CITES", "abstain is false, so cites must not be empty")
     if len(cites) != len(set(cites)):
         return Rejection("BAD_CITES", "cites has duplicates")
@@ -261,8 +283,19 @@ def canonical(s: str) -> str:
     return f"#{n}" if "." in n else f"#{int(n)}"
 
 
+VALUE_SEPARATOR = " / "
+
+
+def split_values(text: str) -> list[str]:
+    """The canonical() of each value in an answer that lists several, separated by " / "
+    as the prompts ask for conflicting context: "1527 / 1525" -> ["#1527", "#1525"].
+    A single-valued answer gives one element; empty parts are dropped."""
+    parts = [p for p in text.split(VALUE_SEPARATOR) if p.strip()]
+    return [canonical(p) for p in parts] or [canonical(text)]
+
+
 def span_in_cites(answer: Answer, units: list[Unit]) -> bool:
-    if answer.text is None:
+    if answer.text is None or not answer.cites:
         return False
     cited = " ".join(u.text for u in units if u.id in set(answer.cites))
     return normalize(answer.text) in normalize(cited)
@@ -279,6 +312,21 @@ def outcome_of(sample: Answer | None, a: Answer) -> str:
     if sample.abstain:
         return ABSTAIN
     if a.text is not None and canonical(sample.text or "") == canonical(a.text):
+        return SAME
+    return OTHER
+
+
+def counterfactual_outcome(sample: Answer | None, a: Answer, replacement: str) -> str:
+    """Outcome of one probe C sample: `follows` if it answers the replacement value,
+    `same` if it answers A, else `abstain` or `other` (rejected twice is `other`)."""
+    if sample is None:
+        return OTHER
+    if sample.abstain:
+        return ABSTAIN
+    got = canonical(sample.text or "")
+    if got == canonical(replacement):
+        return FOLLOWS
+    if a.text is not None and got == canonical(a.text):
         return SAME
     return OTHER
 
@@ -334,6 +382,12 @@ class Result:
 
     probes: keyed by PROBES. loo: leave-one-out runs keyed by the removed unit id.
     verdict, flags, alignment are None unless status is `ok`.
+    counterfactual: probe C, None when C was not run. Otherwise
+        {"applicable": bool, "reason": str | None, "replacement": str | None,
+         "target": {"unit", "start", "end", "text"} | None, "seed": int,
+         "run": ProbeRun JSON | None, "verdict": "grounded" | "decorative" |
+         "unstable" | None}; reason is set exactly when applicable is false. target is
+        the span C edited in the original record (probes.counterfactual_plan).
     compliance: {"calls": int, "retries": int, "final_rejections": int,
                  "code": str | None}  (code set when status is non_compliant).
     """
@@ -351,6 +405,7 @@ class Result:
     flags: dict[str, Any] | None = None
     alignment: dict[str, Any] | None = None
     compliance: dict[str, Any] = field(default_factory=dict)
+    counterfactual: dict[str, Any] | None = None
 
     def to_json(self) -> dict[str, Any]:
         return {
@@ -367,6 +422,7 @@ class Result:
             "flags": self.flags,
             "alignment": self.alignment,
             "compliance": self.compliance,
+            "counterfactual": self.counterfactual,
         }
 
     @classmethod
@@ -385,6 +441,7 @@ class Result:
             flags=d["flags"],
             alignment=d["alignment"],
             compliance=d["compliance"],
+            counterfactual=d.get("counterfactual"),  # absent in v1 results
         )
 
 
