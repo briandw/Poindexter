@@ -1,0 +1,178 @@
+{
+  "squad": {
+    "abstained": 6,
+    "citation": {
+      "abstained": 0,
+      "n": 21,
+      "precision": 1.0,
+      "recall": 0.9761904761904762
+    },
+    "compliance": {
+      "call_rate": {
+        "hi": 1.0,
+        "k": 895,
+        "lo": 0.9957262109096146,
+        "n": 895,
+        "rate": 1.0
+      },
+      "calls": 895,
+      "codes": {},
+      "final_rejections": 0,
+      "records": {
+        "hi": 1.0,
+        "k": 30,
+        "lo": 0.8864866068260312,
+        "n": 30,
+        "rate": 1.0
+      },
+      "retries": 1
+    },
+    "correct": {
+      "hi": 0.9501898750027473,
+      "k": 18,
+      "lo": 0.6536393971937906,
+      "n": 21,
+      "rate": 0.8571428571428571
+    },
+    "flags": {
+      "fabricates": {
+        "hi": 0.31003881270500067,
+        "k": 3,
+        "lo": 0.04344334080123444,
+        "n": 24,
+        "rate": 0.125
+      },
+      "fabricates_on_replace": {
+        "hi": 0.31003881270500067,
+        "k": 3,
+        "lo": 0.04344334080123444,
+        "n": 24,
+        "rate": 0.125
+      },
+      "parametric": {
+        "hi": 0.3585307064969906,
+        "k": 4,
+        "lo": 0.06678676328632951,
+        "n": 24,
+        "rate": 0.16666666666666666
+      },
+      "position_sensitive": {
+        "hi": 0.31003881270500067,
+        "k": 3,
+        "lo": 0.04344334080123444,
+        "n": 24,
+        "rate": 0.125
+      },
+      "reproduced": {
+        "hi": null,
+        "k": 0,
+        "lo": null,
+        "n": 0,
+        "rate": null
+      },
+      "span_in_cites": {
+        "hi": 0.9926065438344942,
+        "k": 23,
+        "lo": 0.7975819352134406,
+        "n": 24,
+        "rate": 0.9583333333333334
+      }
+    },
+    "k": [
+      3
+    ],
+    "known_grounded": {
+      "false_alarm": {
+        "hi": 0.2153108027376358,
+        "k": 0,
+        "lo": 0.0,
+        "n": 14,
+        "rate": 0.0
+      },
+      "l_recall_n": 14,
+      "l_recall_vs_gold": 1.0,
+      "n": 14,
+      "verdicts": {
+        "decorative": 0,
+        "grounded": 12,
+        "incomplete": 2,
+        "unstable": 0
+      }
+    },
+    "models": [
+      "claude-sonnet-5-5"
+    ],
+    "n": 30,
+    "parametric_rate": {
+      "hi": 0.3585307064969906,
+      "k": 4,
+      "lo": 0.06678676328632951,
+      "n": 24,
+      "rate": 0.16666666666666666
+    },
+    "status": {
+      "k_unavailable": 0,
+      "non_compliant": 0,
+      "ok": 30,
+      "unstable_original": 0
+    },
+    "unanswerable": {
+      "abstain": {
+        "hi": 0.879416181613089,
+        "k": 6,
+        "lo": 0.3542021355803963,
+        "n": 9,
+        "rate": 0.6666666666666666
+      },
+      "n": 9,
+      "non_abstain": {
+        "flags": {
+          "fabricates": {
+            "false": 3,
+            "none": 0,
+            "true": 0
+          },
+          "fabricates_on_replace": {
+            "false": 3,
+            "none": 0,
+            "true": 0
+          },
+          "parametric": {
+            "false": 3,
+            "none": 0,
+            "true": 0
+          },
+          "position_sensitive": {
+            "false": 2,
+            "none": 0,
+            "true": 1
+          },
+          "reproduced": {
+            "false": 0,
+            "none": 3,
+            "true": 0
+          },
+          "span_in_cites": {
+            "false": 0,
+            "none": 0,
+            "true": 3
+          }
+        },
+        "n": 3,
+        "verdicts": {
+          "decorative": 0,
+          "grounded": 3,
+          "incomplete": 0,
+          "unstable": 0
+        }
+      },
+      "not_ok": 0
+    },
+    "verdicts": {
+      "decorative": 2,
+      "grounded": 20,
+      "incomplete": 2,
+      "unstable": 0
+    }
+  }
+}

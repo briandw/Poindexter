@@ -2,4 +2,166 @@
 
 Poindexter never gets high, so he never hallucinates.
 
-See [PLAN.md](PLAN.md).
+Poindexter checks whether a model's citations are load-bearing, without any training. It takes one answer with its citations, removes or isolates the cited text, asks the model again, and reports whether the answer depended on what it cited. It adapts the evaluation half of *Bounding Hallucinations: Merlin-Arthur Protocols for Mutual-Information Bounds in Language Models* (Deiseroth, Höth, Kersting, Parcalabescu, [arXiv:2512.11614](https://arxiv.org/abs/2512.11614)). The paper's provers need gradients; its probes only need to perturb the context and ask again.
+
+## The problem
+
+A citation can be correct and still be decorative: the model settles on an answer first and finds a matching sentence second. A support check ("does the cited text contain or entail the answer?") passes that citation, because the sentence does support the answer. The question Poindexter asks is different: does the answer change when the cited text is taken away?
+
+## Results
+
+The v1 goal ([PLAN.md](PLAN.md#goal)) was a definitive answer to one question: can removal probes tell a load-bearing citation from a decorative one? The pass bars were committed in [THRESHOLDS.md](THRESHOLDS.md) before any evaluation run.
+
+**Short answer: they separate grounded citations from citations that uncited text makes unnecessary. Whether they catch citations that are decorative because the model answered from memory is not validated: on SQuAD the case was too rare on Claude models to produce a single clean example. v2 builds a corpus designed to produce it.**
+
+![Summary](docs/summary.png)
+
+| condition | truth | Poindexter says decorative | baseline (answer not in cited text) |
+|---|---|---|---|
+| Haiku 4.5: swap-confirmed grounded | grounded | 0/150 = 0.00 [0.00, 0.02] | 2/150 = 0.01 [0.00, 0.05] |
+| Haiku 4.5: swap-labelled decorative (all 3 flawed) | decorative | 0/3 = 0.00 [0.00, 0.56] | 0/3 = 0.00 [0.00, 0.56] |
+| Haiku 4.5: redundant copy (constructed) | decorative | 56/57 = 0.98 [0.91, 1.00] | 1/57 = 0.02 [0.00, 0.09] |
+| Sonnet 5.5: swap-confirmed grounded | grounded | 0/150 = 0.00 [0.00, 0.02] | 1/150 = 0.01 [0.00, 0.04] |
+| Sonnet 5.5: swap-labelled decorative | decorative | none found in 616 | none found in 616 |
+| Sonnet 5.5: redundant copy (constructed) | decorative | 49/50 = 0.98 [0.90, 1.00] | 1/50 = 0.02 [0.00, 0.10] |
+| Haiku, open agent: grounded (plausible swap) | grounded | 8/282 = 0.03 [0.01, 0.05] | 6/282 = 0.02 [0.01, 0.05] |
+| Haiku, open agent: memory override (plausible swap) | decorative | 1/5 = 0.20 [0.04, 0.62] | 0/5 = 0.00 [0.00, 0.43] |
+| Haiku, open agent: grounded (wide swap) | grounded | 6/231 = 0.03 [0.01, 0.06] | 5/231 = 0.02 [0.01, 0.05] |
+| Haiku, open agent: memory override (wide swap) | decorative | 2/32 = 0.06 [0.02, 0.20] | 1/32 = 0.03 [0.01, 0.16] |
+
+Intervals are Wilson 95%. `scripts/summary.py` rebuilds the table and the figure from `results/`.
+
+### Headline: swap-validated verdicts (pre-registered)
+
+Ground truth comes from an intervention Poindexter doesn't use. For SQuAD 2.0 questions with an integer answer, the number in the gold sentence is changed to a plausible different one (a year moves by 1 to 25, a count by up to 40%). If the model then answers the new number, it reads that sentence, and its citation is **grounded**. If it keeps the original number, it isn't reading the sentence, and the citation is **decorative**. Poindexter is then judged on the **unswapped** record with removal probes only. On that record the cited sentence contains the answer in both classes, so a support check can't separate them. Each model screened 1,000 candidates with one closed-book call, and memorized facts were over-sampled because those are where an override could happen.
+
+| | Haiku 4.5 | Sonnet 5.5 |
+|---|---|---|
+| memorized closed-book | 310 / 1000 | 442 / 1000 |
+| swap classes (pool) | 471 grounded, **5 decorative** | 616 grounded, **0 decorative** |
+| false alarms on grounded | 0/150 | 0/150 |
+| decorative recall | 0/3 | no cases |
+| k=3 vs k=5 agreement (50 records) | 49/50 | 50/50 |
+| outcome under THRESHOLDS.md | **fail** | **inconclusive** (no decorative class) |
+
+Haiku's fail is mechanical, and none of its three decorative cases holds up as a memory override. "1949 → 1940" puts the Soviet bomb before the bomb existed. "From 1968 to 1964" ends before it starts. In *Lemon v. Kurtzman* the year was changed but the legal citation "403 U.S. 602" was left in place, and that volume dates the case to 1971. A careful reader can reject all three edits from the passage alone. So the headline shows that decorative recall could not be measured, not that it is zero. Sonnet never produced a decorative citation to score. The selection rules were fixed before the runs, so these records stay in the pre-registered result and are flagged here instead.
+
+Why removal might miss such cases is a hypothesis, not an observation. An instruction-following model abstains when the cited sentence is removed, whether or not the answer tracked that sentence. So removal measures whether the cited text is needed, not whether the answer follows it. For a model that knows the fact, those two can differ. v1 couldn't test this, because no clean override occurred.
+
+The `parametric` flag records a separate closed-book probe: the model gave the same answer with no context. It fired on 84 of Haiku's 155 and 99 of Sonnet's 150 unswapped records, and Poindexter still called every Sonnet record and 83 of the 84 Haiku records grounded or incomplete. The flag doesn't show where any particular answer came from. It shows only that a closed-book answer matched.
+
+### Redundant evidence (pre-registered, secondary)
+
+The gold sentence is duplicated into another unit. When the model cites only one copy, that citation is sufficient but not necessary. Poindexter called it decorative in 56/57 (Haiku) and 49/50 (Sonnet) cases. The support-check baseline passed nearly all of these citations, because the cited copy does contain the answer. This is the case removal probes are built for, and the construction makes it easy by design.
+
+### Exploratory: a knowledge-permitted agent (not pre-registered)
+
+The context-only agent almost never overrides its context, so the recall question had almost no data. This arm audits a second agent whose prompt allows it to use its own knowledge, as many retrieval-augmented systems do, on Haiku's 310 memorized facts. Both the swaps and Poindexter's probes use that same prompt. Even with that permission, Haiku kept the original value on only 8 of 290 plausible swaps. Wide swaps, which are deliberately implausible (compact discs released in 1832), gave 36 overrides out of 267. Scoring requires the unswapped answer to be the original value and to cite the gold sentence, which leaves 5 and 32 overrides. Poindexter caught 3 of those 37 (8%), and false alarms stayed near 3%. This arm is tilted, so read it as weak evidence. The prompt allows answering from memory, but the validator still requires a citation. With the evidence removed, a memory answer has nothing valid to cite, which pushes the removal probe toward abstaining and toward a `grounded` verdict.
+
+### Standard benches
+
+SQuAD 2.0 dev (sentence units) and HotpotQA dev distractor (paragraph units), all probes, k=3.
+
+| | Haiku SQuAD | Sonnet SQuAD | Haiku HotpotQA | Sonnet HotpotQA |
+|---|---|---|---|---|
+| records (judged) | 60 (41) | 30 (24) | 60 (57) | 30 (30) |
+| grounded / decorative / incomplete | 35 / 1 / 5 | 20 / 2 / 2 | 47 / 8 / 1 | 22 / 3 / 5 |
+| known-grounded false alarms | 0/27 | 0/14 | 3/31 | 0/10 |
+| leave-one-out recall vs gold | 1.00 | 1.00 | 0.71 | 0.65 |
+| citation precision / recall vs gold | 1.00 / 0.99 | 1.00 / 0.98 | 0.96 / 0.90 | 1.00 / 0.93 |
+| abstained on unanswerable | 17/18 | 6/9 | – | – |
+| records compliant after one retry | 100% | 100% | 100% | 100% |
+
+The plan's kill check, leave-one-out recall on SQuAD known-grounded records of at least 0.7, passed at 1.00 on both models. On HotpotQA the known-grounded false-alarm rate is 3/31. In two of those cases, once the gold paragraphs were removed, Haiku found the same answer in a distractor paragraph and cited it ("Carnatic music", "Diamond Rio"), so those citations were in fact unnecessary. The third is a yes/no question ("No") answered after removal, and where that answer came from is not established. The known-grounded label assumes gold paragraphs are the only evidence, and in HotpotQA that isn't always true.
+
+More charts are in [docs/charts](docs/charts), and per-run tables are in each `results/*/tables.md`.
+
+### Model comparison
+
+Sonnet follows its context more strictly than Haiku (0 overrides in 616 vs 5 in 476), abstains on fewer unanswerable questions (6/9 vs 17/18), and almost never breaks the output contract. Its first-try pass rate is near 100%; Haiku's is about 85%, because Haiku tends to add prose after the JSON. On swap-confirmed grounded citations, both had 0/150 decorative false alarms (Haiku gave 147 grounded and 3 incomplete; Sonnet gave 150 grounded).
+
+## What it means
+
+- **Poindexter answers one question well:** would the answer survive without the cited text? Its false-alarm rate on citations the swap test confirms as grounded was 0 of 300. It catches citations made unnecessary by uncited text, which a support check misses.
+- **Its recall on answers from memory with citations attached afterwards is unvalidated.** The pre-registered arm has no valid case: all three candidates are swap-construction flaws. The exploratory arm caught 3 of 37 scored overrides, but 32 of those came from deliberately implausible swaps, which carry the same read-and-reject caveat, and the arm's validator biases removal toward abstaining. The suspected reason is untested: an instruction-following model abstains when the cited sentence is removed, whether or not its answer tracked that sentence. A contradiction probe could: edit the answer span inside the cited text and check whether the answer follows. That probe is still training-free, and v2 builds and validates it ([#22](https://github.com/briandw/Poindexter/issues/22)). Grounding is only observable where the document surprises the model, so v2 validates on a corpus built for surprise.
+- **On these models and this task, memory-override citations are rare:** 1% for Haiku and 0% for Sonnet under a context-only prompt, and 3% under a prompt that allows outside knowledge, even for facts the model knows. For extractive QA with a strict prompt, the citations were almost always load-bearing.
+
+## Limits
+
+- Grounding is not truth. A faithful answer to a wrong document is still grounded.
+- Short extractive answers only. Long-form answers need claim decomposition first.
+- Leave-one-out misses redundant evidence: a fact stated twice is load-bearing in neither copy.
+- A verdict describes whether this model, under this prompt, needs the cited text. It says nothing about how an external agent produced its answer.
+- The swap ground truth treats "answer tracks the edited sentence" as grounded. A model that reads a sentence and rejects it as implausible is counted as decorative. Plausible swaps reduce this, and some remaining cases were construction flaws (for example "from 1968 to 1964").
+- Models are called through the local `claude` CLI, which can't set temperature, so every run samples at its default. Verdicts were stable anyway: k=1, 3 and 5 agreed on 99 of 100 sweep records.
+- The 20-record smoke run in `results/smoke` used an earlier prompt, before the short-answer and JSON-only rules were added.
+
+## How it works
+
+### Contract
+
+A record is one question, its context split into units with ids, and optionally an answer to audit:
+
+```json
+{"id": "q1", "question": "How long is the warranty?",
+ "units": [{"id": "u1", "text": "The store opened in 1998."}, {"id": "u2", "text": "The warranty lasts 90 days."}],
+ "answer": {"text": "90 days", "cites": ["u2"], "abstain": false}}
+```
+
+The model must reply with exactly `{"answer": ..., "cites": [...], "abstain": ...}`. A deterministic validator rejects anything else with one of `INVALID_JSON`, `BAD_KEYS`, `BAD_ABSTAIN`, `BAD_ANSWER` or `BAD_CITES`. A rejected response gets one retry with the rejection code appended. After a second rejection, the sample counts as a different answer.
+
+### Probes
+
+| Probe | Context | Question it asks |
+|---|---|---|
+| O | original units | what the model says |
+| N | none, closed-book prompt | can the model answer from memory |
+| R_remove | units minus the cited ones | are the citations necessary |
+| R_replace | cited text replaced with text from another record | does the model fabricate when the evidence is gone |
+| M | cited units only | are the citations sufficient |
+| L_i | units minus unit i, for each i | which units are load-bearing |
+| S | units shuffled | is the answer or the cite set position-dependent |
+
+Each probe is sampled k times, and the majority wins. With no strict majority, the probe is `unstable`. Answers compare with the SQuAD normalizer, and numeric answers compare by value ("two atoms" matches "2").
+
+| R_remove | M | verdict |
+|---|---|---|
+| same answer | any | decorative |
+| abstain or other | same answer | grounded |
+| abstain or other | abstain or other | incomplete |
+| unstable | any | unstable |
+| any | unstable | unstable |
+
+The flags are independent of the verdict: `parametric`, `fabricates`, `fabricates_on_replace`, `position_sensitive`, `span_in_cites` and `reproduced`. [PLAN.md](PLAN.md#outcomes-and-verdicts) defines each one.
+
+## Use it
+
+Poindexter needs Python 3.12, [uv](https://docs.astral.sh/uv/), and a logged-in `claude` CLI for real runs.
+
+```sh
+uv run poindexter run records.jsonl --backend claude --model haiku --probes verdict --out results.jsonl
+uv run poindexter report results.jsonl
+```
+
+For agents, [skills/poindexter/SKILL.md](skills/poindexter/SKILL.md) is a skill that covers building records, choosing probes, and reading verdicts.
+
+## Reproduce
+
+Every model response from these runs is in `results/cache.sqlite.gz`, so the experiments replay from the cache without calling a model. The datasets download on first use.
+
+```sh
+gunzip -k results/cache.sqlite.gz
+export POINDEXTER_CACHE=$PWD/results/cache.sqlite
+uv run poindexter swap --model claude-haiku-4-5-20251001 --out /tmp/haiku-swap
+uv run poindexter swap --model claude-sonnet-5-5 --out /tmp/sonnet-swap
+uv run poindexter explore /tmp/haiku-swap --model claude-haiku-4-5-20251001 --out /tmp/haiku-explore
+uv run poindexter bench --dataset squad --n 60 --model claude-haiku-4-5-20251001 --out /tmp/haiku-squad
+uv run poindexter bench --dataset hotpotqa --n 60 --model claude-haiku-4-5-20251001 --out /tmp/haiku-hotpotqa
+uv run python scripts/summary.py
+```
+
+The Sonnet benches used `--n 30`. Tests run offline: `uv run pytest`.
+
+## Credits
+
+The probe design adapts Deiseroth et al., arXiv:2512.11614. The data comes from SQuAD 2.0 (Rajpurkar et al.) and HotpotQA (Yang et al.), both CC BY-SA 4.0.

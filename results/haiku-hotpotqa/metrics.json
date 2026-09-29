@@ -1,0 +1,127 @@
+{
+  "hotpotqa": {
+    "abstained": 3,
+    "citation": {
+      "abstained": 3,
+      "n": 57,
+      "precision": 0.9649122807017544,
+      "recall": 0.9035087719298246
+    },
+    "compliance": {
+      "call_rate": {
+        "hi": 0.9850012971554208,
+        "k": 3284,
+        "lo": 0.975664664990927,
+        "n": 3348,
+        "rate": 0.980884109916368
+      },
+      "calls": 3348,
+      "codes": {},
+      "final_rejections": 64,
+      "records": {
+        "hi": 1.0,
+        "k": 60,
+        "lo": 0.93982814785791,
+        "n": 60,
+        "rate": 1.0
+      },
+      "retries": 618
+    },
+    "correct": {
+      "hi": 0.8286735999671945,
+      "k": 44,
+      "lo": 0.6099128690331636,
+      "n": 60,
+      "rate": 0.7333333333333333
+    },
+    "flags": {
+      "fabricates": {
+        "hi": 0.18944877099558666,
+        "k": 5,
+        "lo": 0.03805167177792225,
+        "n": 57,
+        "rate": 0.08771929824561403
+      },
+      "fabricates_on_replace": {
+        "hi": 0.2532446460934409,
+        "k": 8,
+        "lo": 0.07287276143238601,
+        "n": 57,
+        "rate": 0.14035087719298245
+      },
+      "parametric": {
+        "hi": 0.3134069024776395,
+        "k": 11,
+        "lo": 0.11132746980050533,
+        "n": 57,
+        "rate": 0.19298245614035087
+      },
+      "position_sensitive": {
+        "hi": 0.2736317694063802,
+        "k": 9,
+        "lo": 0.0853579597035527,
+        "n": 57,
+        "rate": 0.15789473684210525
+      },
+      "reproduced": {
+        "hi": null,
+        "k": 0,
+        "lo": null,
+        "n": 0,
+        "rate": null
+      },
+      "span_in_cites": {
+        "hi": 0.9968963353485918,
+        "k": 56,
+        "lo": 0.9070925082143229,
+        "n": 57,
+        "rate": 0.9824561403508771
+      }
+    },
+    "k": [
+      3
+    ],
+    "known_grounded": {
+      "false_alarm": {
+        "hi": 0.24899938443392836,
+        "k": 3,
+        "lo": 0.03346464416319736,
+        "n": 31,
+        "rate": 0.0967741935483871
+      },
+      "l_recall_n": 31,
+      "l_recall_vs_gold": 0.7096774193548387,
+      "n": 31,
+      "verdicts": {
+        "decorative": 3,
+        "grounded": 27,
+        "incomplete": 1,
+        "unstable": 0
+      }
+    },
+    "models": [
+      "claude-haiku-4-5-20251001"
+    ],
+    "n": 60,
+    "parametric_rate": {
+      "hi": 0.3134069024776395,
+      "k": 11,
+      "lo": 0.11132746980050533,
+      "n": 57,
+      "rate": 0.19298245614035087
+    },
+    "status": {
+      "k_unavailable": 0,
+      "non_compliant": 0,
+      "ok": 60,
+      "unstable_original": 0
+    },
+    "unanswerable": null,
+    "verdicts": {
+      "decorative": 8,
+      "grounded": 47,
+      "incomplete": 1,
+      "unstable": 1
+    }
+  }
+}

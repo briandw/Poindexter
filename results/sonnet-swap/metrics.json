@@ -1,0 +1,524 @@
+{
+  "squad": {
+    "abstained": 0,
+    "citation": {
+      "abstained": 0,
+      "n": 150,
+      "precision": 0.9588888888888889,
+      "recall": 1.0
+    },
+    "compliance": {
+      "call_rate": {
+        "hi": 1.0,
+        "k": 1813,
+        "lo": 0.9978856389466212,
+        "n": 1813,
+        "rate": 1.0
+      },
+      "calls": 1813,
+      "codes": {},
+      "final_rejections": 0,
+      "records": {
+        "hi": 1.0,
+        "k": 150,
+        "lo": 0.9750297556319235,
+        "n": 150,
+        "rate": 1.0
+      },
+      "retries": 13
+    },
+    "correct": {
+      "hi": 1.0,
+      "k": 150,
+      "lo": 0.9750297556319235,
+      "n": 150,
+      "rate": 1.0
+    },
+    "flags": {
+      "fabricates": {
+        "hi": 0.07565179617877894,
+        "k": 5,
+        "lo": 0.01432043189809255,
+        "n": 150,
+        "rate": 0.03333333333333333
+      },
+      "fabricates_on_replace": {
+        "hi": null,
+        "k": 0,
+        "lo": null,
+        "n": 0,
+        "rate": null
+      },
+      "parametric": {
+        "hi": 0.730966649695706,
+        "k": 99,
+        "lo": 0.5810428721065096,
+        "n": 150,
+        "rate": 0.66
+      },
+      "position_sensitive": {
+        "hi": null,
+        "k": 0,
+        "lo": null,
+        "n": 0,
+        "rate": null
+      },
+      "reproduced": {
+        "hi": null,
+        "k": 0,
+        "lo": null,
+        "n": 0,
+        "rate": null
+      },
+      "span_in_cites": {
+        "hi": 0.9988221986649826,
+        "k": 149,
+        "lo": 0.9632071602251817,
+        "n": 150,
+        "rate": 0.9933333333333333
+      }
+    },
+    "k": [
+      3
+    ],
+    "k_sweep": {
+      "agreement": {
+        "1": {
+          "hi": 1.0,
+          "k": 50,
+          "lo": 0.9286524008666414,
+          "n": 50,
+          "rate": 1.0
+        },
+        "3": {
+          "hi": 1.0,
+          "k": 50,
+          "lo": 0.9286524008666414,
+          "n": 50,
+          "rate": 1.0
+        },
+        "5": {
+          "hi": 1.0,
+          "k": 50,
+          "lo": 0.9286524008666414,
+          "n": 50,
+          "rate": 1.0
+        }
+      },
+      "changed": {
+        "1": 0,
+        "3": 0,
+        "5": 0
+      },
+      "ks": [
+        1,
+        3,
+        5
+      ],
+      "n": 50,
+      "reference_k": 5,
+      "transitions": {
+        "1": {},
+        "3": {},
+        "5": {}
+      },
+      "unavailable": 0,
+      "unavailable_by_k": {
+        "1": 0,
+        "3": 0,
+        "5": 0
+      }
+    },
+    "known_grounded": {
+      "false_alarm": {
+        "hi": 0.07004661989853143,
+        "k": 0,
+        "lo": 0.0,
+        "n": 51,
+        "rate": 0.0
+      },
+      "l_recall_n": 0,
+      "l_recall_vs_gold": null,
+      "n": 51,
+      "verdicts": {
+        "decorative": 0,
+        "grounded": 51,
+        "incomplete": 0,
+        "unstable": 0
+      }
+    },
+    "model": "claude-sonnet-5-5",
+    "models": [
+      "claude-sonnet-5-5"
+    ],
+    "n": 150,
+    "outcome": {
+      "baseline_recall": {
+        "hi": null,
+        "k": 0,
+        "lo": null,
+        "n": 0,
+        "rate": null
+      },
+      "checks": {
+        "beats_baseline": null,
+        "class_size": false,
+        "false_alarm_point": true,
+        "false_alarm_upper": true,
+        "k_agreement": true,
+        "recall_lower": null,
+        "recall_point": null
+      },
+      "classes": {
+        "decorative": 0,
+        "excluded": 0,
+        "grounded": 150
+      },
+      "decorative_recall": {
+        "hi": null,
+        "k": 0,
+        "lo": null,
+        "n": 0,
+        "rate": null
+      },
+      "false_alarm": {
+        "hi": 0.0249702443680766,
+        "k": 0,
+        "lo": 0.0,
+        "n": 150,
+        "rate": 0.0
+      },
+      "k_agreement": 1.0,
+      "result": "inconclusive"
+    },
+    "parametric_rate": {
+      "hi": 0.730966649695706,
+      "k": 99,
+      "lo": 0.5810428721065096,
+      "n": 150,
+      "rate": 0.66
+    },
+    "redundant": {
+      "decorative_rate": {
+        "hi": 0.9964607407283539,
+        "k": 49,
+        "lo": 0.8950455641036219,
+        "n": 50,
+        "rate": 0.98
+      },
+      "decorative_rate_excluding_unstable": {
+        "hi": 0.9964607407283539,
+        "k": 49,
+        "lo": 0.8950455641036219,
+        "n": 50,
+        "rate": 0.98
+      },
+      "excluded": {
+        "cites_both": 9
+      },
+      "kept": 50,
+      "n": 59,
+      "verdicts": {
+        "decorative": 49,
+        "grounded": 1,
+        "incomplete": 0,
+        "unstable": 0
+      }
+    },
+    "screen": {
+      "candidates": 1000,
+      "memorized": 442,
+      "originals_run": 150,
+      "pool": 642,
+      "swap_classes": {
+        "decorative": 0,
+        "grounded": 616
+      }
+    },
+    "status": {
+      "k_unavailable": 0,
+      "non_compliant": 0,
+      "ok": 150,
+      "unstable_original": 0
+    },
+    "swap": {
+      "balanced": null,
+      "classes": {
+        "decorative": 0,
+        "excluded": 0,
+        "grounded": 150
+      },
+      "confusion": {
+        "decorative": {
+          "decorative": 0,
+          "grounded": 0,
+          "incomplete": 0,
+          "unstable": 0
+        },
+        "grounded": {
+          "decorative": 0,
+          "grounded": 150,
+          "incomplete": 0,
+          "unstable": 0
+        }
+      },
+      "decorative_recall": {
+        "hi": null,
+        "k": 0,
+        "lo": null,
+        "n": 0,
+        "rate": null
+      },
+      "excluded_reasons": {},
+      "excluding_unstable": {
+        "decorative_recall": {
+          "hi": null,
+          "k": 0,
+          "lo": null,
+          "n": 0,
+          "rate": null
+        },
+        "false_alarm": {
+          "hi": 0.0249702443680766,
+          "k": 0,
+          "lo": 0.0,
+          "n": 150,
+          "rate": 0.0
+        },
+        "unstable": {
+          "decorative": 0,
+          "grounded": 0
+        }
+      },
+      "false_alarm": {
+        "hi": 0.0249702443680766,
+        "k": 0,
+        "lo": 0.0,
+        "n": 150,
+        "rate": 0.0
+      },
+      "ids": {
+        "decorative": [],
+        "excluded": {},
+        "grounded": [
+          "squad-56be91b23aeaaa14008c90f2",
+          "squad-56ccea7f62d2951400fa64e3",
+          "squad-56ce31baaab44d1400b8853d",
+          "squad-56ce330daab44d1400b88558",
+          "squad-56cee6a3aab44d1400b88c3b",
+          "squad-56cf1a05aab44d1400b88d7e",
+          "squad-56cfad77234ae51400d9be60",
+          "squad-56d1015e17492d1400aab70e",
+          "squad-56d138c3e7d4791d00902037",
+          "squad-56d22394e7d4791d0090269b",
+          "squad-56d3765559d6e41400146481",
+          "squad-56d9d2e5dc89441400fdb859",
+          "squad-56db3546e7c41114004b4f49",
+          "squad-56de664ccffd8e1900b4b863",
+          "squad-56de73b2cffd8e1900b4b924",
+          "squad-56defa09c65bf219000b3e6c",
+          "squad-56df76c85ca0a614008f9ac5",
+          "squad-56df837656340a1900b29cb4",
+          "squad-56df864b5ca0a614008f9c0f",
+          "squad-56df9a3738dc4217001520bf",
+          "squad-56dfa18f4a1a83140091ebca",
+          "squad-56e06c87231d4119001ac0f5",
+          "squad-56e070fd231d4119001ac138",
+          "squad-56e07b187aa994140058e550",
+          "squad-56e084b77aa994140058e597",
+          "squad-56e13c8acd28a01900c676d9",
+          "squad-56e1c348cd28a01900c67b3e",
+          "squad-56e76ba237bdd419002c3f89",
+          "squad-56e7af3b37bdd419002c4339",
+          "squad-56e8dbaa99e8941900975edb",
+          "squad-56f865baaef2371900626040",
+          "squad-56f87f17aef2371900626118",
+          "squad-56f8aa0d9b226e1400dd0d9a",
+          "squad-56f8bc049b226e1400dd0edd",
+          "squad-56f8cee09e9bad19000a0552",
+          "squad-56fb30738f12f31900630305",
+          "squad-56fb34c7f34c681400b0c214",
+          "squad-56fdcc3b19033b140034cd86",
+          "squad-56fddf75761e401900d28c18",
+          "squad-56fde3d4761e401900d28c43",
+          "squad-570603c475f01819005e7882",
+          "squad-57062b9075f01819005e7a21",
+          "squad-57069c2652bb891400689adc",
+          "squad-5706aecd75f01819005e7d30",
+          "squad-570985de200fba1400368131",
+          "squad-5709c252200fba14003682b1",
+          "squad-5709c252200fba14003682b5",
+          "squad-5709e96a4103511400d5949c",
+          "squad-570a0f2e6d058f1900182c90",
+          "squad-570a87f76d058f1900182f5b",
+          "squad-570a91fd6d058f1900182fb8",
+          "squad-570abdb26d058f19001830bf",
+          "squad-570ce0b1fed7b91900d45a60",
+          "squad-570d386cb3d812140066d564",
+          "squad-570d6c96b3d812140066d8cf",
+          "squad-570da71c16d0071400510c55",
+          "squad-570def870b85d914000d7c09",
+          "squad-570dfbd20b85d914000d7c59",
+          "squad-570e2b700b85d914000d7d01",
+          "squad-570e2b700b85d914000d7d02",
+          "squad-570e50150dc6ce1900204f5a",
+          "squad-570e7ff60b85d914000d7f5c",
+          "squad-570fcf3e80d9841400ab3694",
+          "squad-57100234a58dae1900cd67d2",
+          "squad-57100f64a58dae1900cd6840",
+          "squad-5719d3af4faf5e1900b8a814",
+          "squad-571a2f4b10f8ca1400304f47",
+          "squad-571c8539dd7acb1400e4c0e2",
+          "squad-571ddd93b64a571400c71daf",
+          "squad-5723dd7f0dadf01500fa1f53",
+          "squad-5723e3290dadf01500fa1f7b",
+          "squad-5723f4900dadf01500fa1fbd",
+          "squad-57241ed90a492a190043561c",
+          "squad-5724e0140a492a190043564c",
+          "squad-5724f76c0ba9f01400d97bf0",
+          "squad-5725bdfa271a42140099d110",
+          "squad-572607cd89a1e219009ac15e",
+          "squad-57264ed5dd62a815002e8126",
+          "squad-57265492f1498d1400e8dc36",
+          "squad-5726596df1498d1400e8dcd4",
+          "squad-572677eef1498d1400e8e0b7",
+          "squad-57267878dd62a815002e862f",
+          "squad-572679afdd62a815002e8666",
+          "squad-5726872cf1498d1400e8e2dd",
+          "squad-5726927e708984140094ca91",
+          "squad-572697b35951b619008f7779",
+          "squad-5726a9f3f1498d1400e8e67c",
+          "squad-5726bd78dd62a815002e8ef6",
+          "squad-5726bfee708984140094d064",
+          "squad-5726c2c4f1498d1400e8ea80",
+          "squad-5727502cdd62a815002e9ae6",
+          "squad-57276074f1498d1400e8f71a",
+          "squad-5727716bdd62a815002e9cf6",
+          "squad-5727860fdd62a815002e9f75",
+          "squad-572787a85951b619008f8c85",
+          "squad-57278f03f1498d1400e8fc14",
+          "squad-5727c55bff5b5019007d94d0",
+          "squad-5727cebc2ca10214002d96f4",
+          "squad-5727d93fff5b5019007d96cd",
+          "squad-5727db85ff5b5019007d96fc",
+          "squad-5727dfb93acd2414000deeaf",
+          "squad-5727e8b02ca10214002d994d",
+          "squad-5727faabff5b5019007d99c7",
+          "squad-572805f84b864d190016425e",
+          "squad-5728294a2ca10214002d9f98",
+          "squad-572833dd2ca10214002da0a4",
+          "squad-5728562e3acd2414000df92f",
+          "squad-5728804b4b864d1900164a46",
+          "squad-5728a94c4b864d1900164bbe",
+          "squad-5728db933acd2414000e0072",
+          "squad-5728f4ab2ca10214002dab3b",
+          "squad-5728fc671d04691400778f0b",
+          "squad-572944e03f37b319004781e1",
+          "squad-572996c36aef051400155001",
+          "squad-5729c464af94a219006aa5f4",
+          "squad-572a2cfc1d0469140077981b",
+          "squad-572a398baf94a219006aa8d3",
+          "squad-572a72f97a1753140016af87",
+          "squad-572a98e6111d821400f38c1e",
+          "squad-572aab3fbe1ee31400cb813e",
+          "squad-572ac0e134ae481900deacab",
+          "squad-572acb2b34ae481900deacf6",
+          "squad-572caa632babe914003c29b0",
+          "squad-572e844703f989190075670b",
+          "squad-572e885c03f989190075673d",
+          "squad-572eb0fd03f9891900756963",
+          "squad-572ec65ccb0c0d14000f1541",
+          "squad-572f11a2dfa6aa1500f8d5ba",
+          "squad-572f6d1104bcaa1900d7692d",
+          "squad-572f9553b2c2fd1400568225",
+          "squad-572fa6e204bcaa1900d76b41",
+          "squad-57302f4004bcaa1900d7730a",
+          "squad-5730345eb2c2fd1400568a6c",
+          "squad-573054fb396df9190009608a",
+          "squad-573084818ab72b1400f9c542",
+          "squad-5730f58e05b4da19006bcc9b",
+          "squad-5731234a497a881900248b95",
+          "squad-573135b605b4da19006bced0",
+          "squad-5731b7dce17f3d1400422308",
+          "squad-5731cf3d0fdd8d15006c6567",
+          "squad-573236d2e17f3d1400422736",
+          "squad-57324c76e99e3014001e666a",
+          "squad-573253910fdd8d15006c69ad",
+          "squad-573269d2b9d445190005eb03",
+          "squad-57338160d058e614000b5bfa",
+          "squad-57339902d058e614000b5e70",
+          "squad-57339b36d058e614000b5ea3",
+          "squad-5733acebd058e614000b600b",
+          "squad-573434c54776f41900661a7b",
+          "squad-57343f8dd058e614000b6b7f"
+        ]
+      },
+      "min_class": 100,
+      "min_class_met": false,
+      "n": 150,
+      "span_in_cites": {
+        "false_alarm": {
+          "hi": 0.03679283977481815,
+          "k": 1,
+          "lo": 0.0011778013350174366,
+          "n": 150,
+          "rate": 0.006666666666666667
+        },
+        "missing": {
+          "decorative": 0,
+          "grounded": 0
+        },
+        "recall": {
+          "hi": null,
+          "k": 0,
+          "lo": null,
+          "n": 0,
+          "rate": null
+        },
+        "true_rate": {
+          "decorative": {
+            "hi": null,
+            "k": 0,
+            "lo": null,
+            "n": 0,
+            "rate": null
+          },
+          "grounded": {
+            "hi": 0.9988221986649826,
+            "k": 149,
+            "lo": 0.9632071602251817,
+            "n": 150,
+            "rate": 0.9933333333333333
+          }
+        }
+      },
+      "swapped_variant": {
+        "decorative": {
+          "n": 0,
+          "verdicts": {
+            "decorative": 0,
+            "grounded": 0,
+            "incomplete": 0,
+            "unstable": 0
+          }
+        },
+        "grounded": {
+          "n": 150,
+          "verdicts": {
+            "decorative": 1,
+            "grounded": 147,
+            "incomplete": 2,
+            "unstable": 0
+          }
+        }
+      }
+    },
+    "unanswerable": null,
+    "verdicts": {
+      "decorative": 0,
+      "grounded": 150,
+      "incomplete": 0,
+      "unstable": 0
+    }
+  }
+}
