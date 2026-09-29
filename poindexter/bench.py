@@ -174,7 +174,8 @@ def _section(rs: list[Result]) -> dict[str, Any]:
         "k": sorted({r.k for r in rs}),
         "status": _counts((r.status for r in rs), STATUSES, "status"),
         "compliance": _compliance(rs),
-        "verdicts": _counts((r.verdict for r in ok), VERDICTS, "verdict"),
+        "abstained": sum(r.A is not None and r.A.abstain for r in ok),
+        "verdicts": _counts((r.verdict for r in ok if r.verdict is not None), VERDICTS, "verdict"),
         "flags": flags,
         "parametric_rate": flags["parametric"],
         "correct": rate(sum(is_correct(r) for r in answerable), len(answerable)),
@@ -514,7 +515,8 @@ def evaluate_swap(
 
 
 def evaluate_redundant(results: list[Result]) -> dict[str, Any]:
-    """Records with `meta.redundant`; kept when A cites exactly one of the two copies.
+    """Records with `meta.redundant`; kept when A is the dataset answer and cites exactly
+    one of the two copies.
 
     Expected verdict: decorative (the cited copy is sufficient but not necessary).
     """
@@ -528,6 +530,9 @@ def evaluate_redundant(results: list[Result]) -> dict[str, Any]:
             raise ValueError(f"record {r.record.id}: copy_of equals copy_id")
         if r.status != "ok" or r.A is None:
             excluded["not_ok"] += 1
+            continue
+        if r.A.abstain or not is_correct(r):
+            excluded["wrong_answer"] += 1
             continue
         hit = len(copies & set(r.A.cites))
         if hit == 1:
