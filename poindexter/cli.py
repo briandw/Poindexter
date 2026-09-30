@@ -12,7 +12,7 @@ import json
 from collections import Counter
 from pathlib import Path
 
-from poindexter import bench, charts, datasets, experiment, runner, surprise
+from poindexter import bench, charts, datasets, experiment, runner, surprise, sweep
 from poindexter.backend import make_backend
 from poindexter.contract import read_results
 from poindexter.prompt import AGENTS
@@ -194,7 +194,42 @@ def cmd_surprise(args: argparse.Namespace) -> None:
     print(json.dumps(report, indent=2))
 
 
-SUBCOMMANDS = [add_run, add_report, add_bench, add_charts, add_swap, add_explore, add_surprise]
+def add_sweep(sub: argparse._SubParsersAction) -> None:
+    p = sub.add_parser("sweep", help="v3: probe C edit-size sweep (PLAN-v3.md)")
+    p.add_argument("corpus", help="v2 corpus directory (L0.jsonl, facts.jsonl)")
+    p.add_argument("--build", metavar="DIR", help="only build the sized edits into DIR")
+    p.add_argument("--sweep-dir", help="directory holding sweep.jsonl (from --build)")
+    p.add_argument("--model", help="model id (required for --backend claude)")
+    p.add_argument("--backend", choices=["claude", "fake"], default="claude")
+    p.add_argument("--agents", default=",".join(sweep.AGENTS))
+    p.add_argument("--facts", type=int, default=150)
+    p.add_argument("--k", type=int, default=3)
+    p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--concurrency", type=int, default=runner.DEFAULT_CONCURRENCY)
+    p.add_argument("--out", help="output directory")
+    p.set_defaults(func=cmd_sweep)
+
+
+def cmd_sweep(args: argparse.Namespace) -> None:
+    if args.build:
+        print(json.dumps(sweep.build_sweep(args.corpus, args.build, args.seed), indent=2))
+        return
+    if not args.sweep_dir or not args.out:
+        raise SystemExit("sweep: --sweep-dir and --out are required unless --build is given")
+    report = asyncio.run(
+        sweep.sweep_experiment(
+            make_backend(args.backend, args.model), args.corpus, args.sweep_dir, args.out,
+            agents=tuple(args.agents.split(",")), n_facts=args.facts, k=args.k,
+            seed=args.seed, concurrency=args.concurrency,
+        )
+    )  # fmt: skip
+    print(json.dumps({a: s["curve"] for a, s in report["agents"].items()}, indent=2))
+
+
+SUBCOMMANDS = [
+    add_run, add_report, add_bench, add_charts, add_swap, add_explore, add_surprise,
+    add_sweep,
+]  # fmt: skip
 
 
 def main(argv: list[str] | None = None) -> None:
