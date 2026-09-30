@@ -37,16 +37,21 @@ Each kept fact gets these documents (the answer-bearing sentence is edited; ever
 | level | document | purpose |
 |---|---|---|
 | L0 | agrees with the prior | where Poindexter is judged |
-| L1 | mild counterfactual (plausible, same type) | ground truth, held-out draw |
+| L1 | mild counterfactual: years ±1–5, counts ±15%, entities plausible; a model check confirms the edit doesn't contradict the rest of the passage (up to 5 redraws, else the fact is dropped) | ground truth, held-out draw |
 | L2 | strong counterfactual (contradicts a famous fact outright) | surprise gradient |
+| Cb / Ca | agreeing passage plus one inserted sentence stating the L1 value, before (Cb) or after (Ca) the true sentence | conflict behaviour (descriptive) |
 
 **Control:** invented facts in invented passages (no prior; both models abstained 30/30 closed-book in the probe). Every citation here is grounded by construction. It measures false alarms where no memory exists.
+
+L0, Cb and Ca records carry `meta.heldout_values` (the L1 and L2 values), and probe C never chooses them, so C's edit can't equal the ground-truth edit.
 
 ## Agents
 
 Each model is audited as two agents, because stickiness depends on the prompt.
 
 - **context:** the v1 prompt, answering only from context.
+Both prompts gain a conflict rule: when the context gives conflicting answers, give each value, separated by " / ", and cite every unit that states one. The v1 prompts are kept byte-identical as `context_v1` and `open_v1` so v1 replays from its cache.
+
 - **open:** may use its own knowledge. The validator allows `cites: []` for an answer from knowledge, so an honest uncited memory answer is expressible. The v1 open arm lacked this and was tilted toward abstaining.
 
 ## Ground truth and scoring
@@ -64,13 +69,19 @@ For each model × agent × fact:
 - **Descriptive:** update rate by level (L1, L2), answer type, model, and agent; abstention and uncited-answer rates for the open agent.
 - **Control:** false-alarm rates for C and removal on invented facts, where truth is grounded.
 
+## Pilot findings that shaped the thresholds
+
+- Tightening L1 removed Haiku's decorative cases under the context prompt. The 2 in pilot 1 came from mild edits that clashed with their passage.
+- With the conflict rule, Haiku also follows the mild edits under the open prompt (0 of 30 kept the prior). Sonnet under the open prompt keeps its prior on 27 of 30. So recall can be judged only for Sonnet/open, and false alarms elsewhere.
+- On conflict documents, models mostly report both values, as the rule asks. That's instruction-following, so the conflict level is descriptive.
+
 ## Pre-registration
 
 A 30-fact pilot per model checks the construction, compliance, and class balance. After the pilot and before any evaluation run, `THRESHOLDS-v2.md` fixes the pass bars for C. After an evaluation run starts, prompts, construction, and thresholds stay fixed. A negative result is acceptable and is reported as such.
 
 ## Budget
 
-About 21 calls per fact, per model and agent. With 150 facts per model this comes to roughly 12k calls, about 40 minutes at the machine's CPU limit. Everything is cached, and results and the cache are committed as in v1.
+About 27 calls per fact, per model and agent (O on L0, L1, L2, Cb and Ca; N, R_remove, M and C on L0). Full runs: 150 facts for each context cell and Haiku/open, and every confident fact for Sonnet/open, where the decorative class lives. Each cell also runs 30 invented facts. Roughly 20k calls, about an hour at the machine's CPU limit. Everything is cached, and results and the cache are committed as in v1.
 
 ## Work
 
