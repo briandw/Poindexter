@@ -55,6 +55,44 @@ v1 used SQuAD, which the models had largely memorized, and a document that agree
 
 On the 25 facts where Sonnet (knowledge allowed) followed the mild edit, C called 19 decorative. In 17 of those 19, C's edit moved the value further than the mild edit: C uses v1's plausible-swap rule (years up to ±25), while the mild twin moves years by at most 5. Sonnet followed a nudge and rejected a jump. The reverse shows up on Haiku: of the 35 facts where it kept its prior against the absurd edit, C called only 10 decorative, because Haiku followed C's more moderate edit. So a C verdict means "the answer does (or doesn't) follow a moderate edit of the cited value". A fuller measure would sweep edit sizes and report how far the answer follows, and that is the natural next step.
 
+## v3: how far does the answer follow the edit?
+
+v2 left one question open: a C verdict depends on how big C's edit is. v3 ([PLAN-v3.md](PLAN-v3.md)) sweeps the edit size on the same facts. It also adds a third agent whose prompt says the document is the authority: "We want the answer according to the context: if it contradicts what you know or believe to be true, the context's answer is still the correct answer here." That is 150 facts per model, 3 agents, 5 number sizes and 3 entity sizes, k=3.
+
+![v3 sweep](docs/sweep_v3.png)
+
+| model, agent | S1 ±1–2y / 5–10% | S2 ±3–5y / 15–25% | S3 ±10–25y / 40–60% | S4 ±50–100y / ×3–5 | S5 ±200–500y / ×20–50 | E1 plausible | E2 pool | E3 absurd |
+|---|---|---|---|---|---|---|---|---|
+| Haiku 4.5, context-only | 1.00 | 0.97 | 0.99 | 0.99 | 0.98 | 0.97 | 0.88 | 0.75 |
+| Haiku 4.5, document is the authority | 1.00 | 1.00 | 0.99 | 0.99 | 0.99 | 0.96 | 0.87 | 0.81 |
+| Haiku 4.5, knowledge allowed | 0.96 | 0.91 | 0.93 | 0.87 | 0.83 | 0.90 | 0.84 | 0.62 |
+| Sonnet 5.5, context-only | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 0.96 | 0.96 |
+| Sonnet 5.5, document is the authority | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 0.97 |
+| Sonnet 5.5, knowledge allowed | 0.17 | 0.08 | 0.01 | 0.01 | 0.00 | 0.01 | 0.01 | 0.00 |
+
+Each cell is the follow rate: the share of facts where the answer switched to the edited value. The S columns combine years and counts. `scripts/summary_v3.py` rebuilds the table and figure from `results/v3/`.
+
+### Pre-registered hypotheses
+
+- **H1, the explicit prompt makes both models follow every edit (≥0.90): Sonnet passes, Haiku fails on entities.**
+  - Haiku reaches 0.87 on pool entities and 0.81 on absurd ones.
+  - No Haiku record's majority answer was the value it knew, though 4 individual samples were. The misses:
+    - abstentions
+    - answers giving both values ("Honoré de Balzac / Victor Hugo" for *Les Misérables*), as if its own knowledge were a second source
+    - 2 records whose output failed the contract twice
+    - 1 record with no majority
+  - Every number size passes for both models.
+- **H2, with knowledge allowed, Sonnet follows small edits more than large ones: passes.** Years and counts combined, it follows 17% of the smallest edits (12/70) and 0% of the largest (0/82). For years alone the smallest edits reach 19% (12/63).
+- **H3, that decline is what made C disagree in v2: fails as stated.**
+  - Over the 69 facts with a call at every size, S1 and S2 agree on 0.84 and S2 and S3 on 0.94. Sonnet almost never follows at any size, so "keeps its answer at both sizes" dominates every pair.
+  - The direct evidence is thin but in the same direction: of the 6 facts Sonnet followed at S2, it followed only 1 at S3.
+
+### What it adds
+
+- **The explicit instruction barely matters for these models.** The plain context-only prompt already gets them to follow edits of every size, including absurd ones. The authority wording lifts Haiku on absurd entities from 0.75 to 0.81 and Sonnet on pool entities from 0.96 to 1.00.
+- **The knowledge-allowed prompt is what changes behaviour.** Sonnet follows a document that disagrees with it only when the disagreement is tiny, and even then only 17% of the time. It answers from memory without citing (96% of sweep answers uncited). Haiku keeps following most edits but drops off as they grow.
+- **For probe C, the edit size changes the verdict.** C currently uses edits up to ±25 years (v1's swap rule). For a model that mixes document and memory, a larger edit is followed less often, so C can call a citation decorative that a smaller edit would call grounded. A model that doesn't follow a one-or-two-year edit didn't let the document change its answer; it may still have read the document and rejected it. Whether a smaller default edit makes C more accurate hasn't been tested. That needs ground truth independent of the edit size, and it's the natural follow-up.
+
 ## v1 results: SQuAD
 
 The v1 goal ([PLAN.md](PLAN.md#goal)) was a definitive answer to one question: can removal probes tell a load-bearing citation from a decorative one? The pass bars were committed in [THRESHOLDS.md](THRESHOLDS.md) before any evaluation run.

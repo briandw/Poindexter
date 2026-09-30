@@ -81,8 +81,19 @@ OPEN_SYSTEM = _with_conflict_rule(OPEN_SYSTEM_V1).replace(
     'context. If the answer comes from your own knowledge rather than the context, use "cites": '
     "[].",
 )
+# v3's document agent: the context agent with rule 1 made explicit that the document is
+# the authority, so an answer that contradicts the model's knowledge is still correct.
+DOCUMENT_SYSTEM = SYSTEM.replace(
+    "1. Answer only from the context units. Do not use outside knowledge.",
+    "1. The context is the authority for this task. We want the answer according to the "
+    "context: if it contradicts what you know or believe to be true, the context's answer "
+    "is still the correct answer here. Do not use outside knowledge.",
+)
+if DOCUMENT_SYSTEM == SYSTEM:
+    raise AssertionError("document agent rule was not applied")
 AGENTS = {
     "context": SYSTEM,
+    "document": DOCUMENT_SYSTEM,
     "open": OPEN_SYSTEM,
     "context_v1": SYSTEM_V1,
     "open_v1": OPEN_SYSTEM_V1,
@@ -90,6 +101,7 @@ AGENTS = {
 # Each agent's validator, called with (raw response, context unit ids).
 VALIDATORS: dict[str, Callable[[str, set[str]], Answer | Rejection]] = {
     "context": validate,
+    "document": validate,
     "open": validate_open,
     "context_v1": validate,
     "open_v1": validate,

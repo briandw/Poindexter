@@ -1,0 +1,18 @@
+{
+  "records": 1448,
+  "by_size": {
+    "entity/E1": 192,
+    "entity/E2": 192,
+    "entity/E3": 192,
+    "number/S1": 154,
+    "number/S2": 174,
+    "number/S3": 180,
+    "number/S4": 182,
+    "number/S5": 182
+  },
+  "missing": {
+    "number/S1": 28,
+    "number/S2": 8,
+    "number/S3": 2
+  }
+}
