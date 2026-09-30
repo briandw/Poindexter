@@ -1,0 +1,363 @@
+{
+  "model": "claude-sonnet-5-5",
+  "facts": 400,
+  "confident": 346,
+  "used": 30,
+  "agents": {
+    "context": {
+      "updates": {
+        "L1/entity": {
+          "abstain": 1,
+          "follows": 14
+        },
+        "L1/number": {
+          "follows": 15
+        },
+        "L2/entity": {
+          "abstain": 1,
+          "follows": 14
+        },
+        "L2/number": {
+          "follows": 15
+        }
+      },
+      "headline": {
+        "classes": {
+          "excluded:twin_abstain": 1,
+          "grounded": 29
+        },
+        "C": {
+          "recall": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "lo": null,
+            "hi": null
+          },
+          "recall_no_call": 0,
+          "false_alarm": {
+            "k": 0,
+            "n": 29,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.11696979849974075
+          },
+          "false_alarm_no_call": 0
+        },
+        "removal": {
+          "recall": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "lo": null,
+            "hi": null
+          },
+          "recall_no_call": 0,
+          "false_alarm": {
+            "k": 0,
+            "n": 29,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.11696979849974075
+          },
+          "false_alarm_no_call": 0
+        },
+        "span_baseline": {
+          "recall": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "lo": null,
+            "hi": null
+          },
+          "recall_no_call": 0,
+          "false_alarm": {
+            "k": 0,
+            "n": 29,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.11696979849974075
+          },
+          "false_alarm_no_call": 0
+        },
+        "C_applicability": {
+          "applicable": 29
+        }
+      },
+      "strong_twin": {
+        "classes": {
+          "excluded:twin_abstain": 1,
+          "grounded": 29
+        },
+        "C": {
+          "recall": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "lo": null,
+            "hi": null
+          },
+          "recall_no_call": 0,
+          "false_alarm": {
+            "k": 0,
+            "n": 29,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.11696979849974075
+          },
+          "false_alarm_no_call": 0
+        },
+        "removal": {
+          "recall": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "lo": null,
+            "hi": null
+          },
+          "recall_no_call": 0,
+          "false_alarm": {
+            "k": 0,
+            "n": 29,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.11696979849974075
+          },
+          "false_alarm_no_call": 0
+        },
+        "span_baseline": {
+          "recall": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "lo": null,
+            "hi": null
+          },
+          "recall_no_call": 0,
+          "false_alarm": {
+            "k": 0,
+            "n": 29,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.11696979849974075
+          },
+          "false_alarm_no_call": 0
+        },
+        "C_applicability": {
+          "applicable": 29
+        }
+      },
+      "control": {
+        "n": 20,
+        "scored": 20,
+        "C": {
+          "false_alarm": {
+            "k": 0,
+            "n": 20,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.16112515805281938
+          },
+          "no_call": 0
+        },
+        "removal": {
+          "false_alarm": {
+            "k": 0,
+            "n": 20,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.16112515805281938
+          },
+          "no_call": 0
+        },
+        "span_baseline": {
+          "false_alarm": {
+            "k": 0,
+            "n": 20,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.16112515805281938
+          },
+          "no_call": 0
+        }
+      }
+    },
+    "open": {
+      "updates": {
+        "L1/entity": {
+          "follows": 1,
+          "prior": 14
+        },
+        "L1/number": {
+          "follows": 1,
+          "prior": 14
+        },
+        "L2/entity": {
+          "prior": 15
+        },
+        "L2/number": {
+          "prior": 15
+        }
+      },
+      "headline": {
+        "classes": {
+          "decorative": 28,
+          "grounded": 2
+        },
+        "C": {
+          "recall": {
+            "k": 27,
+            "n": 28,
+            "rate": 0.9642857142857143,
+            "lo": 0.8228780225664668,
+            "hi": 0.9936674801509623
+          },
+          "recall_no_call": 0,
+          "false_alarm": {
+            "k": 1,
+            "n": 2,
+            "rate": 0.5,
+            "lo": 0.09453120573423074,
+            "hi": 0.9054687942657693
+          },
+          "false_alarm_no_call": 0
+        },
+        "removal": {
+          "recall": {
+            "k": 28,
+            "n": 28,
+            "rate": 1.0,
+            "lo": 0.8793566952341543,
+            "hi": 1.0
+          },
+          "recall_no_call": 0,
+          "false_alarm": {
+            "k": 2,
+            "n": 2,
+            "rate": 1.0,
+            "lo": 0.34238022750665303,
+            "hi": 1.0
+          },
+          "false_alarm_no_call": 0
+        },
+        "span_baseline": {
+          "recall": {
+            "k": 0,
+            "n": 28,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.12064330476584563
+          },
+          "recall_no_call": 0,
+          "false_alarm": {
+            "k": 0,
+            "n": 2,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.6576197724933469
+          },
+          "false_alarm_no_call": 0
+        },
+        "C_applicability": {
+          "applicable": 30
+        }
+      },
+      "strong_twin": {
+        "classes": {
+          "decorative": 30
+        },
+        "C": {
+          "recall": {
+            "k": 28,
+            "n": 30,
+            "rate": 0.9333333333333333,
+            "lo": 0.7867654163738308,
+            "hi": 0.9815229762087295
+          },
+          "recall_no_call": 0,
+          "false_alarm": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "lo": null,
+            "hi": null
+          },
+          "false_alarm_no_call": 0
+        },
+        "removal": {
+          "recall": {
+            "k": 30,
+            "n": 30,
+            "rate": 1.0,
+            "lo": 0.8864866068260312,
+            "hi": 1.0
+          },
+          "recall_no_call": 0,
+          "false_alarm": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "lo": null,
+            "hi": null
+          },
+          "false_alarm_no_call": 0
+        },
+        "span_baseline": {
+          "recall": {
+            "k": 0,
+            "n": 30,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.11351339317396876
+          },
+          "recall_no_call": 0,
+          "false_alarm": {
+            "k": 0,
+            "n": 0,
+            "rate": null,
+            "lo": null,
+            "hi": null
+          },
+          "false_alarm_no_call": 0
+        },
+        "C_applicability": {
+          "applicable": 30
+        }
+      },
+      "control": {
+        "n": 20,
+        "scored": 20,
+        "C": {
+          "false_alarm": {
+            "k": 0,
+            "n": 20,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.16112515805281938
+          },
+          "no_call": 0
+        },
+        "removal": {
+          "false_alarm": {
+            "k": 0,
+            "n": 20,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.16112515805281938
+          },
+          "no_call": 0
+        },
+        "span_baseline": {
+          "false_alarm": {
+            "k": 0,
+            "n": 20,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.16112515805281938
+          },
+          "no_call": 0
+        }
+      }
+    }
+  }
+}

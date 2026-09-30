@@ -1,0 +1,375 @@
+{
+  "model": "claude-haiku-4-5-20251001",
+  "facts": 400,
+  "confident": 368,
+  "used": 30,
+  "agents": {
+    "context": {
+      "updates": {
+        "L1/entity": {
+          "abstain": 2,
+          "follows": 11,
+          "prior": 1
+        },
+        "L1/number": {
+          "follows": 15,
+          "prior": 1
+        },
+        "L2/entity": {
+          "abstain": 4,
+          "follows": 9,
+          "prior": 1
+        },
+        "L2/number": {
+          "follows": 16
+        }
+      },
+      "headline": {
+        "classes": {
+          "decorative": 2,
+          "excluded:twin_abstain": 2,
+          "grounded": 26
+        },
+        "C": {
+          "recall": {
+            "k": 1,
+            "n": 2,
+            "rate": 0.5,
+            "lo": 0.09453120573423074,
+            "hi": 0.9054687942657693
+          },
+          "recall_no_call": 0,
+          "false_alarm": {
+            "k": 0,
+            "n": 26,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.1287289218592153
+          },
+          "false_alarm_no_call": 0
+        },
+        "removal": {
+          "recall": {
+            "k": 1,
+            "n": 2,
+            "rate": 0.5,
+            "lo": 0.09453120573423074,
+            "hi": 0.9054687942657693
+          },
+          "recall_no_call": 0,
+          "false_alarm": {
+            "k": 0,
+            "n": 26,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.1287289218592153
+          },
+          "false_alarm_no_call": 0
+        },
+        "span_baseline": {
+          "recall": {
+            "k": 0,
+            "n": 2,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.6576197724933469
+          },
+          "recall_no_call": 0,
+          "false_alarm": {
+            "k": 0,
+            "n": 26,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.1287289218592153
+          },
+          "false_alarm_no_call": 0
+        },
+        "C_applicability": {
+          "applicable": 28
+        }
+      },
+      "strong_twin": {
+        "classes": {
+          "decorative": 1,
+          "excluded:twin_abstain": 4,
+          "grounded": 25
+        },
+        "C": {
+          "recall": {
+            "k": 1,
+            "n": 1,
+            "rate": 1.0,
+            "lo": 0.20654931437723745,
+            "hi": 1.0
+          },
+          "recall_no_call": 0,
+          "false_alarm": {
+            "k": 0,
+            "n": 25,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.13319225093904846
+          },
+          "false_alarm_no_call": 0
+        },
+        "removal": {
+          "recall": {
+            "k": 0,
+            "n": 1,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.7934506856227626
+          },
+          "recall_no_call": 0,
+          "false_alarm": {
+            "k": 1,
+            "n": 25,
+            "rate": 0.04,
+            "lo": 0.007096233501987265,
+            "hi": 0.19544063736193734
+          },
+          "false_alarm_no_call": 0
+        },
+        "span_baseline": {
+          "recall": {
+            "k": 0,
+            "n": 1,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.7934506856227626
+          },
+          "recall_no_call": 0,
+          "false_alarm": {
+            "k": 0,
+            "n": 25,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.13319225093904846
+          },
+          "false_alarm_no_call": 0
+        },
+        "C_applicability": {
+          "applicable": 26
+        }
+      },
+      "control": {
+        "n": 20,
+        "scored": 20,
+        "C": {
+          "false_alarm": {
+            "k": 0,
+            "n": 20,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.16112515805281938
+          },
+          "no_call": 0
+        },
+        "removal": {
+          "false_alarm": {
+            "k": 0,
+            "n": 20,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.16112515805281938
+          },
+          "no_call": 0
+        },
+        "span_baseline": {
+          "false_alarm": {
+            "k": 0,
+            "n": 20,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.16112515805281938
+          },
+          "no_call": 0
+        }
+      }
+    },
+    "open": {
+      "updates": {
+        "L1/entity": {
+          "follows": 11,
+          "other": 1,
+          "prior": 2
+        },
+        "L1/number": {
+          "follows": 14,
+          "prior": 2
+        },
+        "L2/entity": {
+          "abstain": 2,
+          "follows": 7,
+          "prior": 5
+        },
+        "L2/number": {
+          "follows": 11,
+          "prior": 5
+        }
+      },
+      "headline": {
+        "classes": {
+          "decorative": 4,
+          "excluded:twin_other": 1,
+          "grounded": 25
+        },
+        "C": {
+          "recall": {
+            "k": 2,
+            "n": 4,
+            "rate": 0.5,
+            "lo": 0.15003898915214947,
+            "hi": 0.8499610108478506
+          },
+          "recall_no_call": 0,
+          "false_alarm": {
+            "k": 3,
+            "n": 25,
+            "rate": 0.12,
+            "lo": 0.04166817150440358,
+            "hi": 0.2995579392092732
+          },
+          "false_alarm_no_call": 0
+        },
+        "removal": {
+          "recall": {
+            "k": 4,
+            "n": 4,
+            "rate": 1.0,
+            "lo": 0.5101091635454027,
+            "hi": 1.0
+          },
+          "recall_no_call": 0,
+          "false_alarm": {
+            "k": 13,
+            "n": 25,
+            "rate": 0.52,
+            "lo": 0.3349851695035678,
+            "hi": 0.6996871404588704
+          },
+          "false_alarm_no_call": 0
+        },
+        "span_baseline": {
+          "recall": {
+            "k": 0,
+            "n": 4,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.4898908364545973
+          },
+          "recall_no_call": 0,
+          "false_alarm": {
+            "k": 0,
+            "n": 25,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.13319225093904846
+          },
+          "false_alarm_no_call": 0
+        },
+        "C_applicability": {
+          "applicable": 29
+        }
+      },
+      "strong_twin": {
+        "classes": {
+          "decorative": 10,
+          "excluded:twin_abstain": 2,
+          "grounded": 18
+        },
+        "C": {
+          "recall": {
+            "k": 3,
+            "n": 10,
+            "rate": 0.3,
+            "lo": 0.10779126740630099,
+            "hi": 0.6032218525388546
+          },
+          "recall_no_call": 0,
+          "false_alarm": {
+            "k": 2,
+            "n": 18,
+            "rate": 0.1111111111111111,
+            "lo": 0.03101952264561239,
+            "hi": 0.32799765130178804
+          },
+          "false_alarm_no_call": 0
+        },
+        "removal": {
+          "recall": {
+            "k": 6,
+            "n": 10,
+            "rate": 0.6,
+            "lo": 0.31267376973365824,
+            "hi": 0.8318196702937638
+          },
+          "recall_no_call": 0,
+          "false_alarm": {
+            "k": 11,
+            "n": 18,
+            "rate": 0.6111111111111112,
+            "lo": 0.3861904160223791,
+            "hi": 0.7969475342783638
+          },
+          "false_alarm_no_call": 0
+        },
+        "span_baseline": {
+          "recall": {
+            "k": 0,
+            "n": 10,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.2775327998628892
+          },
+          "recall_no_call": 0,
+          "false_alarm": {
+            "k": 0,
+            "n": 18,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.17587922364665765
+          },
+          "false_alarm_no_call": 0
+        },
+        "C_applicability": {
+          "applicable": 28
+        }
+      },
+      "control": {
+        "n": 20,
+        "scored": 20,
+        "C": {
+          "false_alarm": {
+            "k": 0,
+            "n": 20,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.16112515805281938
+          },
+          "no_call": 0
+        },
+        "removal": {
+          "false_alarm": {
+            "k": 0,
+            "n": 20,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.16112515805281938
+          },
+          "no_call": 0
+        },
+        "span_baseline": {
+          "false_alarm": {
+            "k": 0,
+            "n": 20,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.16112515805281938
+          },
+          "no_call": 0
+        }
+      }
+    }
+  }
+}
