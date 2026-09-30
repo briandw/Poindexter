@@ -73,6 +73,8 @@ def add_bench(sub: argparse._SubParsersAction) -> None:
     p.add_argument("--k", type=int, default=3)
     p.add_argument("--concurrency", type=int, default=runner.DEFAULT_CONCURRENCY)
     p.add_argument("--probes", choices=runner.PROBE_SETS, default="all")
+    p.add_argument("--agent", choices=sorted(AGENTS), default="context",
+                   help="audited agent; context_v1 replays v1 from its cache")
     p.add_argument("--source", help="dataset JSON file to use instead of the download")
     p.add_argument("--out", required=True, help="output directory")
     p.set_defaults(func=cmd_bench)
@@ -88,7 +90,7 @@ def cmd_bench(args: argparse.Namespace) -> None:
     results = asyncio.run(
         runner.run_records(
             records, backend, args.k, None, args.seed, args.concurrency,
-            out / "results.jsonl", args.probes,
+            out / "results.jsonl", args.probes, args.agent,
         )
     )  # fmt: skip
     metrics = bench.evaluate(results, recompute if args.k >= 5 else None)

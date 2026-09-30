@@ -1,0 +1,627 @@
+{
+  "model": "claude-sonnet-5-5",
+  "facts": 374,
+  "confident": 325,
+  "used": 150,
+  "agents": {
+    "context": {
+      "updates": {
+        "L1/entity": {
+          "follows": 68
+        },
+        "L1/number": {
+          "follows": 82
+        },
+        "L2/entity": {
+          "abstain": 3,
+          "follows": 65
+        },
+        "L2/number": {
+          "follows": 82
+        }
+      },
+      "headline": {
+        "classes": {
+          "grounded": 150
+        },
+        "C": {
+          "recall": {
+            "rate": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            },
+            "excluding_undecided": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            },
+            "undecided": 0,
+            "no_call": 0,
+            "coverage": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            }
+          },
+          "false_alarm": {
+            "rate": {
+              "k": 0,
+              "n": 150,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.0249702443680766
+            },
+            "excluding_undecided": {
+              "k": 0,
+              "n": 148,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.025299143267784395
+            },
+            "undecided": 2,
+            "no_call": 0,
+            "coverage": {
+              "k": 150,
+              "n": 150,
+              "rate": 1.0,
+              "lo": 0.9750297556319235,
+              "hi": 1.0
+            }
+          }
+        },
+        "removal": {
+          "recall": {
+            "rate": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            },
+            "excluding_undecided": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            },
+            "undecided": 0,
+            "no_call": 0,
+            "coverage": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            }
+          },
+          "false_alarm": {
+            "rate": {
+              "k": 0,
+              "n": 150,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.0249702443680766
+            },
+            "excluding_undecided": {
+              "k": 0,
+              "n": 150,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.0249702443680766
+            },
+            "undecided": 0,
+            "no_call": 0,
+            "coverage": {
+              "k": 150,
+              "n": 150,
+              "rate": 1.0,
+              "lo": 0.9750297556319235,
+              "hi": 1.0
+            }
+          }
+        },
+        "span_baseline": {
+          "recall": {
+            "rate": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            },
+            "excluding_undecided": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            },
+            "undecided": 0,
+            "no_call": 0,
+            "coverage": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            }
+          },
+          "false_alarm": {
+            "rate": {
+              "k": 0,
+              "n": 150,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.0249702443680766
+            },
+            "excluding_undecided": {
+              "k": 0,
+              "n": 150,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.0249702443680766
+            },
+            "undecided": 0,
+            "no_call": 0,
+            "coverage": {
+              "k": 150,
+              "n": 150,
+              "rate": 1.0,
+              "lo": 0.9750297556319235,
+              "hi": 1.0
+            }
+          }
+        },
+        "C_applicability": {
+          "applicable": 150
+        }
+      },
+      "strong_twin": {
+        "classes": {
+          "excluded:twin_abstain": 3,
+          "grounded": 147
+        },
+        "C": {
+          "recall": {
+            "rate": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            },
+            "excluding_undecided": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            },
+            "undecided": 0,
+            "no_call": 0,
+            "coverage": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            }
+          },
+          "false_alarm": {
+            "rate": {
+              "k": 0,
+              "n": 147,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.02546686335923391
+            },
+            "excluding_undecided": {
+              "k": 0,
+              "n": 147,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.02546686335923391
+            },
+            "undecided": 0,
+            "no_call": 0,
+            "coverage": {
+              "k": 147,
+              "n": 147,
+              "rate": 1.0,
+              "lo": 0.9745331366407661,
+              "hi": 1.0
+            }
+          }
+        },
+        "removal": {
+          "recall": {
+            "rate": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            },
+            "excluding_undecided": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            },
+            "undecided": 0,
+            "no_call": 0,
+            "coverage": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            }
+          },
+          "false_alarm": {
+            "rate": {
+              "k": 0,
+              "n": 147,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.02546686335923391
+            },
+            "excluding_undecided": {
+              "k": 0,
+              "n": 147,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.02546686335923391
+            },
+            "undecided": 0,
+            "no_call": 0,
+            "coverage": {
+              "k": 147,
+              "n": 147,
+              "rate": 1.0,
+              "lo": 0.9745331366407661,
+              "hi": 1.0
+            }
+          }
+        },
+        "span_baseline": {
+          "recall": {
+            "rate": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            },
+            "excluding_undecided": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            },
+            "undecided": 0,
+            "no_call": 0,
+            "coverage": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            }
+          },
+          "false_alarm": {
+            "rate": {
+              "k": 0,
+              "n": 147,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.02546686335923391
+            },
+            "excluding_undecided": {
+              "k": 0,
+              "n": 147,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.02546686335923391
+            },
+            "undecided": 0,
+            "no_call": 0,
+            "coverage": {
+              "k": 147,
+              "n": 147,
+              "rate": 1.0,
+              "lo": 0.9745331366407661,
+              "hi": 1.0
+            }
+          }
+        },
+        "C_applicability": {
+          "applicable": 147
+        }
+      },
+      "control": {
+        "n": 30,
+        "known_closed_book": 0,
+        "closed_book_samples": {
+          "abstain": 90
+        },
+        "scored": 30,
+        "C": {
+          "false_alarm": {
+            "rate": {
+              "k": 0,
+              "n": 30,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.11351339317396876
+            },
+            "excluding_undecided": {
+              "k": 0,
+              "n": 30,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.11351339317396876
+            },
+            "undecided": 0,
+            "no_call": 0,
+            "coverage": {
+              "k": 30,
+              "n": 30,
+              "rate": 1.0,
+              "lo": 0.8864866068260312,
+              "hi": 1.0
+            }
+          }
+        },
+        "removal": {
+          "false_alarm": {
+            "rate": {
+              "k": 0,
+              "n": 30,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.11351339317396876
+            },
+            "excluding_undecided": {
+              "k": 0,
+              "n": 30,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.11351339317396876
+            },
+            "undecided": 0,
+            "no_call": 0,
+            "coverage": {
+              "k": 30,
+              "n": 30,
+              "rate": 1.0,
+              "lo": 0.8864866068260312,
+              "hi": 1.0
+            }
+          }
+        },
+        "span_baseline": {
+          "false_alarm": {
+            "rate": {
+              "k": 0,
+              "n": 30,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.11351339317396876
+            },
+            "excluding_undecided": {
+              "k": 0,
+              "n": 30,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.11351339317396876
+            },
+            "undecided": 0,
+            "no_call": 0,
+            "coverage": {
+              "k": 30,
+              "n": 30,
+              "rate": 1.0,
+              "lo": 0.8864866068260312,
+              "hi": 1.0
+            }
+          }
+        }
+      },
+      "uncited": {
+        "Ca/entity": {
+          "k": 0,
+          "n": 204,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.018482639808683074
+        },
+        "Ca/number": {
+          "k": 0,
+          "n": 246,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.015375585936884312
+        },
+        "Cb/entity": {
+          "k": 0,
+          "n": 202,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.01866222112252115
+        },
+        "Cb/number": {
+          "k": 0,
+          "n": 246,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.015375585936884312
+        },
+        "L0/entity": {
+          "k": 0,
+          "n": 204,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.018482639808683074
+        },
+        "L0/number": {
+          "k": 0,
+          "n": 246,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.015375585936884312
+        },
+        "L1/entity": {
+          "k": 0,
+          "n": 204,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.018482639808683074
+        },
+        "L1/number": {
+          "k": 0,
+          "n": 246,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.015375585936884312
+        },
+        "L2/entity": {
+          "k": 0,
+          "n": 195,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.019319204573721077
+        },
+        "L2/number": {
+          "k": 0,
+          "n": 246,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.015375585936884312
+        }
+      },
+      "abstain": {
+        "Ca/entity": {
+          "k": 0,
+          "n": 204,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.018482639808683074
+        },
+        "Ca/number": {
+          "k": 0,
+          "n": 246,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.015375585936884312
+        },
+        "Cb/entity": {
+          "k": 0,
+          "n": 204,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.018482639808683074
+        },
+        "Cb/number": {
+          "k": 0,
+          "n": 246,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.015375585936884312
+        },
+        "L0/entity": {
+          "k": 0,
+          "n": 204,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.018482639808683074
+        },
+        "L0/number": {
+          "k": 0,
+          "n": 246,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.015375585936884312
+        },
+        "L1/entity": {
+          "k": 0,
+          "n": 204,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.018482639808683074
+        },
+        "L1/number": {
+          "k": 0,
+          "n": 246,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.015375585936884312
+        },
+        "L2/entity": {
+          "k": 9,
+          "n": 204,
+          "rate": 0.04411764705882353,
+          "lo": 0.02338137999728914,
+          "hi": 0.08170573276945131
+        },
+        "L2/number": {
+          "k": 0,
+          "n": 246,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.015375585936884312
+        }
+      },
+      "conflict": {
+        "samples": {
+          "both": 897,
+          "other": 3
+        },
+        "citation_honest": {
+          "k": 0,
+          "n": 0,
+          "rate": null,
+          "lo": null,
+          "hi": null
+        },
+        "fact_labels": {
+          "document": 150
+        },
+        "C_verdict_vs_label": {
+          "grounded": {
+            "document": 148
+          },
+          "unstable": {
+            "document": 2
+          }
+        },
+        "prior_pull_by_C_verdict": {
+          "grounded": {
+            "k": 0,
+            "n": 148,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.025299143267784395
+          },
+          "unstable": {
+            "k": 0,
+            "n": 2,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.6576197724933469
+          }
+        }
+      }
+    }
+  }
+}

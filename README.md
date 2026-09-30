@@ -2,13 +2,60 @@
 
 Poindexter never gets high, so he never hallucinates.
 
-Poindexter checks whether a model's citations are load-bearing, without any training. It takes one answer with its citations, removes or isolates the cited text, asks the model again, and reports whether the answer depended on what it cited. It adapts the evaluation half of *Bounding Hallucinations: Merlin-Arthur Protocols for Mutual-Information Bounds in Language Models* (Deiseroth, Höth, Kersting, Parcalabescu, [arXiv:2512.11614](https://arxiv.org/abs/2512.11614)). The paper's provers need gradients; its probes only need to perturb the context and ask again.
+Poindexter checks whether a model's citations are load-bearing, without any training. It takes one answer with its citations, perturbs the cited text, asks the model again, and reports whether the answer depended on what it cited. Its main probe, C, edits the cited fact to a different value and checks whether the answer follows. It adapts the evaluation half of *Bounding Hallucinations: Merlin-Arthur Protocols for Mutual-Information Bounds in Language Models* (Deiseroth, Höth, Kersting, Parcalabescu, [arXiv:2512.11614](https://arxiv.org/abs/2512.11614)). The paper's provers need gradients; its probes only need to perturb the context and ask again.
 
 ## The problem
 
 A citation can be correct and still be decorative: the model settles on an answer first and finds a matching sentence second. A support check ("does the cited text contain or entail the answer?") passes that citation, because the sentence does support the answer. The question Poindexter asks is different: does the answer change when the cited text is taken away?
 
 ## Results
+
+v2's question ([PLAN-v2.md](PLAN-v2.md)) is whether probe C tells load-bearing citations from decorative ones, on a corpus built so that each case actually occurs. The pass bars were committed in [THRESHOLDS-v2.md](THRESHOLDS-v2.md) before any v2 evaluation run.
+
+**Pre-registered outcome: pass.** Where decorative citations exist in bulk (Sonnet 5.5 with knowledge allowed), C catches 98% of them. In the three judged grounded cells, C false-alarms on 0–5%. Removal's rate in those same cells ranges from 0% to 29%, with 29% the one where the model may use its own knowledge. The text-match baseline catches none.
+
+One caveat qualifies the pass. In the same Sonnet cell, on the 25 facts where the model did follow the mild edit (too few to judge), C called 19 decorative (76%) and removal 25 (100%). How much an answer depends on its citation is graded, not binary, and C tests at one edit size (below).
+
+![v2 summary](docs/summary_v2.png)
+
+| cell | judged | probe C says decorative | removal says decorative | span baseline |
+|---|---|---|---|---|
+| Haiku 4.5, context-only: truth grounded (n=148) | yes | 1/148 = 0.01 [0.00, 0.04] | 0/148 = 0.00 [0.00, 0.03] | 0/148 = 0.00 [0.00, 0.03] |
+| Sonnet 5.5, context-only: truth grounded (n=150) | yes | 0/150 = 0.00 [0.00, 0.02] | 0/150 = 0.00 [0.00, 0.02] | 0/150 = 0.00 [0.00, 0.02] |
+| Haiku 4.5, knowledge allowed: truth grounded (n=142) | yes | 7/142 = 0.05 [0.02, 0.10] | 41/142 = 0.29 [0.22, 0.37] | 0/142 = 0.00 [0.00, 0.03] |
+| Haiku 4.5, knowledge allowed: truth decorative (n=7) | no | 4/7 = 0.57 [0.25, 0.84] | 3/7 = 0.43 [0.16, 0.75] | 0/7 = 0.00 [0.00, 0.35] |
+| Sonnet 5.5, knowledge allowed: truth decorative (n=299) | yes | 293/299 = 0.98 [0.96, 0.99] | 299/299 = 1.00 [0.99, 1.00] | 0/299 = 0.00 [0.00, 0.01] |
+| Sonnet 5.5, knowledge allowed: truth grounded (n=25) | no | 19/25 = 0.76 [0.57, 0.89] | 25/25 = 1.00 [0.87, 1.00] | 0/25 = 0.00 [0.00, 0.13] |
+| Invented facts, each of the 4 cells (n=30 each) | yes | 0/30 in every cell | 0/30 in every cell | 0/30 in every cell |
+
+Intervals are Wilson 95%. A cell is judged when it has at least 100 facts of that class. `scripts/summary_v2.py` rebuilds the table and figure from `results/v2/`.
+
+### Why the corpus changed
+
+v1 used SQuAD, which the models had largely memorized, and a document that agrees with what the model already knows hides whether the answer came from it. v2 manufactures surprise:
+
+- **Facts with confident priors:** 374 famous facts, half numbers and half entities, each answered correctly closed-book on 3 of 3 samples (344 for Haiku, 325 for Sonnet).
+- **Synthetic passages** state each fact exactly once.
+- **Counterfactual twins edit that one sentence:**
+  - mild: years ±1–5, counts ±15%, or a plausible entity, checked by a model for consistency with the rest of the passage
+  - strong: absurd, e.g. "the Brandenburg Concertos were composed by Ed Sheeran"
+  - conflict: the true and mild values in two different sentences
+- **Ground truth for each citation** comes from its mild twin. If the answer follows the edit, the citation is grounded. If it keeps the prior, the citation is decorative. Probe C's own edit is drawn separately and never reuses the twin's value.
+- **Control:** 100 invented facts about places and people that don't exist. 30 were used per cell, and both models abstained on all of them closed-book.
+
+### Findings
+
+- **With a context-only prompt, both models' citations are load-bearing.** They followed the mild edit on 148/150 (Haiku) and 150/150 (Sonnet) facts. Sonnet also followed 147 of 150 absurd edits. Probe C and removal both agree the citations are grounded.
+- **With a prompt that allows its own knowledge, Sonnet's citations are mostly decorative.** It kept its prior against the mild edit on 299 of 325 facts. When the document disagrees, it answers without citing (99% of entity answers, 86% of number answers). When the document agrees, it cites it (0% uncited). The citation marks agreement, not dependence: a text-match or entailment check passes every one of them, and C flags 98%.
+- **Removal confuses "could answer from memory" with "ignored the document".** It called every Sonnet knowledge-allowed citation decorative, including the 25 where Sonnet did follow the edit, and 29% of Haiku's grounded ones. That is exactly the v1 blind spot, now measured.
+- **Haiku with knowledge allowed mostly defers.** It kept the prior on 7 of 150 mild edits, but on 35 of 150 absurd ones.
+- **On contradictory documents, models report the conflict.** Given the true and the mild value in two sentences, they gave both (Sonnet 97–100% of samples, Haiku 56–81%). When they picked one, it was always the remembered value, and the cited sentence always contained the value given. These results are descriptive; the conflict rule asks for both values, so reporting both is partly instruction-following.
+
+### The caveat: dependence depends on how far the edit moves
+
+On the 25 facts where Sonnet (knowledge allowed) followed the mild edit, C called 19 decorative. In 17 of those 19, C's edit moved the value further than the mild edit: C uses v1's plausible-swap rule (years up to ±25), while the mild twin moves years by at most 5. Sonnet followed a nudge and rejected a jump. The reverse shows up on Haiku: of the 35 facts where it kept its prior against the absurd edit, C called only 10 decorative, because Haiku followed C's more moderate edit. So a C verdict means "the answer does (or doesn't) follow a moderate edit of the cited value". A fuller measure would sweep edit sizes and report how far the answer follows, and that is the natural next step.
+
+## v1 results: SQuAD
 
 The v1 goal ([PLAN.md](PLAN.md#goal)) was a definitive answer to one question: can removal probes tell a load-bearing citation from a decorative one? The pass bars were committed in [THRESHOLDS.md](THRESHOLDS.md) before any evaluation run.
 
@@ -82,6 +129,11 @@ Sonnet follows its context more strictly than Haiku (0 overrides in 616 vs 5 in 
 
 ## What it means
 
+- **v2:** probe C detects decorative citations, and in the judged cells it doesn't false-alarm on grounded ones. The exception is the unjudged 25 facts where Sonnet with knowledge allowed followed a small edit but not C's larger one. The v1 removal probe can't, because it treats anything the model could answer from memory as decorative. A model allowed to use its own knowledge (Sonnet 5.5 here) cites a document when it agrees and drops the citation when it doesn't, so its citations mark agreement, not dependence. How far an answer depends on its citation is graded by edit size, and a C verdict holds at C's edit size.
+
+From v1:
+
+
 - **Poindexter answers one question well:** would the answer survive without the cited text? Its false-alarm rate on citations the swap test confirms as grounded was 0 of 300. It catches citations made unnecessary by uncited text, which a support check misses.
 - **Its recall on answers from memory with citations attached afterwards is unvalidated.** The pre-registered arm has no valid case: all three candidates are swap-construction flaws. The exploratory arm caught 3 of 37 scored overrides, but 32 of those came from deliberately implausible swaps, which carry the same read-and-reject caveat, and the arm's validator biases removal toward abstaining. The suspected reason is untested: an instruction-following model abstains when the cited sentence is removed, whether or not its answer tracked that sentence. A contradiction probe could: edit the answer span inside the cited text and check whether the answer follows. That probe is still training-free, and v2 builds and validates it ([#22](https://github.com/briandw/Poindexter/issues/22)). Grounding is only observable where the document surprises the model, so v2 validates on a corpus built for surprise.
 - **On these models and this task, memory-override citations are rare:** 1% for Haiku and 0% for Sonnet under a context-only prompt, and 3% under a prompt that allows outside knowledge, even for facts the model knows. For extractive QA with a strict prompt, the citations were almost always load-bearing.
@@ -95,6 +147,9 @@ Sonnet follows its context more strictly than Haiku (0 overrides in 616 vs 5 in 
 - The swap ground truth treats "answer tracks the edited sentence" as grounded. A model that reads a sentence and rejects it as implausible is counted as decorative. Plausible swaps reduce this, and some remaining cases were construction flaws (for example "from 1968 to 1964").
 - Models are called through the local `claude` CLI, which can't set temperature, so every run samples at its default. Verdicts were stable anyway: k=1, 3 and 5 agreed on 99 of 100 sweep records.
 - The 20-record smoke run in `results/smoke` used an earlier prompt, before the short-answer and JSON-only rules were added.
+- v2's corpus is synthetic. The passages are fluent but formulaic, the answer sentence restates the question, and entities are mostly people (141 of the 192 retained). The mild-edit consistency check is a model judgement, and it is lenient on entities.
+- C's verdict depends on its edit size. It uses v1's plausible-swap rule for numbers and a same-type pool for entities, and a larger or smaller edit can flip the verdict (see Results).
+- The prompts changed between v1 and v2 (a conflict rule was added). v1's are kept byte-identical as the `context_v1` and `open_v1` agents so v1 still replays from its cache.
 
 ## How it works
 
@@ -121,6 +176,7 @@ The model must reply with exactly `{"answer": ..., "cites": [...], "abstain": ..
 | M | cited units only | are the citations sufficient |
 | L_i | units minus unit i, for each i | which units are load-bearing |
 | S | units shuffled | is the answer or the cite set position-dependent |
+| C | the cited answer occurrence edited to a different same-type value | does the answer follow what the cited text says |
 
 Each probe is sampled k times, and the majority wins. With no strict majority, the probe is `unstable`. Answers compare with the SQuAD normalizer, and numeric answers compare by value ("two atoms" matches "2").
 
@@ -139,7 +195,7 @@ The flags are independent of the verdict: `parametric`, `fabricates`, `fabricate
 Poindexter needs Python 3.12, [uv](https://docs.astral.sh/uv/), and a logged-in `claude` CLI for real runs.
 
 ```sh
-uv run poindexter run records.jsonl --backend claude --model haiku --probes verdict --out results.jsonl
+uv run poindexter run records.jsonl --backend claude --model haiku --probes verdict+C --out results.jsonl
 uv run poindexter report results.jsonl
 ```
 
@@ -147,7 +203,7 @@ For agents, [skills/poindexter/SKILL.md](skills/poindexter/SKILL.md) is a skill 
 
 ## Reproduce
 
-Every model response from these runs is in `results/cache.sqlite.gz`, so the experiments replay from the cache without calling a model. The datasets download on first use.
+Every model response from these runs is in `results/cache.sqlite.gz`, so the experiments replay from the cache. The replay isn't quite zero-call. For example, replaying the v1 Haiku SQuAD bench made 15 new calls out of about 1,766, because later validator changes reject a few cached responses and trigger a retry. Its verdicts came out identical. The datasets download on first use.
 
 ```sh
 gunzip -k results/cache.sqlite.gz
@@ -155,12 +211,23 @@ export POINDEXTER_CACHE=$PWD/results/cache.sqlite
 uv run poindexter swap --model claude-haiku-4-5-20251001 --out /tmp/haiku-swap
 uv run poindexter swap --model claude-sonnet-5-5 --out /tmp/sonnet-swap
 uv run poindexter explore /tmp/haiku-swap --model claude-haiku-4-5-20251001 --out /tmp/haiku-explore
-uv run poindexter bench --dataset squad --n 60 --model claude-haiku-4-5-20251001 --out /tmp/haiku-squad
-uv run poindexter bench --dataset hotpotqa --n 60 --model claude-haiku-4-5-20251001 --out /tmp/haiku-hotpotqa
+uv run poindexter bench --dataset squad --n 60 --model claude-haiku-4-5-20251001 --agent context_v1 --out /tmp/haiku-squad
+uv run poindexter bench --dataset hotpotqa --n 60 --model claude-haiku-4-5-20251001 --agent context_v1 --out /tmp/haiku-hotpotqa
 uv run python scripts/summary.py
 ```
 
-The Sonnet benches used `--n 30`. Tests run offline: `uv run pytest`.
+The Sonnet benches used `--n 30`; add `--agent context_v1` to the `bench` commands so they use v1's prompt and hit the cache (`swap` and `explore` pick v1's prompts themselves).
+
+v2:
+
+```sh
+mkdir -p /tmp/corpus && for f in results/v2/corpus/*.jsonl.gz; do gunzip -c $f > /tmp/corpus/$(basename $f .gz); done
+uv run poindexter surprise /tmp/corpus --model claude-haiku-4-5-20251001 --agents context --facts 150 --novel 30 --out /tmp/v2-haiku-context
+uv run poindexter surprise /tmp/corpus --model claude-sonnet-5-5 --agents open --facts 400 --novel 30 --out /tmp/v2-sonnet-open
+uv run python scripts/summary_v2.py
+```
+
+The other two cells swap the model and agent (`--facts 150`). To compare a rerun with the committed results, point the summary at the rerun directories: `uv run python scripts/summary_v2.py --root /tmp` (it reads `v2-<model>-<agent>/` under the root). The corpus itself rebuilds from the cache with `uv run python -m poindexter.corpus /tmp/corpus-rebuild`. Tests run offline: `uv run pytest`.
 
 ## Credits
 

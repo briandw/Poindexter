@@ -28,10 +28,11 @@ Done when `uv run poindexter run records.jsonl --backend fake --probes verdict -
 ### 2. Run the probes
 
 ```sh
-uv run poindexter run records.jsonl --backend claude --model haiku --probes verdict --out results.jsonl
+uv run poindexter run records.jsonl --backend claude --model haiku --probes verdict+C --out results.jsonl
 ```
 
 - `--probes verdict` runs O, N, R_remove, M: 4×k calls per record, enough for the verdict and the `parametric`, `fabricates`, `span_in_cites`, `reproduced` flags.
+- `--probes verdict+C` adds probe C, which edits the cited answer to a different same-type value and asks again: 5×k calls per record. Use it by default. C is the probe that tells whether the answer depends on what the citation says. `all` includes it too.
 - `--probes all` adds R_replace, S, and leave-one-out per unit: (6 + units)×k calls. Use it when you need alignment or the `fabricates_on_replace` / `position_sensitive` flags. It needs 2+ records (R_replace borrows text from the next record).
 - `--backend claude` calls the local `claude` CLI; `--model` is required, `--temperature` stays unset (the CLI cannot set it).
 - Responses are cached in `.poindexter/cache.sqlite` under the working directory (or `$POINDEXTER_CACHE`), so a rerun or a higher `--k` pays only for new samples.
@@ -56,7 +57,15 @@ Status other than `ok` means no verdict:
 - `unstable_original`: O samples disagree; raise `--k` or suspect an ambiguous question.
 - `ok` with `A.abstain` true: the model abstained, so there are no citations to judge. Check the context yourself before concluding the answer isn't there.
 
-Verdicts (from R_remove = cited units removed, M = cited units only):
+Probe C (`counterfactual` in each result), the primary check:
+
+- `verdict: grounded`: the answer followed the edit, so it depends on what the cited text says.
+- `verdict: decorative`: the answer did not follow C's edit. Report that the answer doesn't track this citation's content at C's edit size. That is not proof the citation gave no support: a model may follow a smaller change.
+- `verdict: unstable`: samples split. Rerun with a higher `--k`.
+- `applicable: false`: C couldn't make an edit, and `reason` says why (the answer isn't in the cited text, it's uncited, or there's no valid replacement). Fall back to the removal verdict below.
+- A C verdict holds at C's edit size (moderate). A model may follow a small nudge but not a large one.
+
+Removal verdicts (from R_remove = cited units removed, M = cited units only). Treat them as secondary: when the agent may use its own knowledge, removal calls any answer the model knows `decorative`.
 
 - `grounded`: removing the cites breaks the answer and the cites alone suffice. The citations are load-bearing.
 - `decorative`: the answer survives without the cites. Look for uncited units that carry the answer: cite the ids in `alignment.load_bearing` (needs `--probes all`), or, if that list is empty, look for the same fact repeated in several units.
@@ -82,4 +91,10 @@ Flags (null when the probe was not run):
 - A verdict says whether this audit model, under Poindexter's prompt, needs the cited text. It says nothing about how an external agent produced its answer.
 - Majorities over k samples carry sampling noise; the default k=3 can flip, so confirm verdicts that matter at `--k 5`.
 
-Validation ([README.md#results](../../README.md#results)): 0 of 300 swap-confirmed grounded citations were called decorative, and about 98% of citations made unnecessary by an uncited copy were caught. Recall on citations that are decorative because the model answered from memory is unvalidated. A `grounded` verdict means the cited text was needed, not that the answer came from it.
+Validation ([README.md#results](../../README.md#results)), on a corpus of famous facts with counterfactual twins:
+
+- **Decorative recall:** probe C caught 98% of decorative citations (293/299).
+- **False alarms on grounded citations:** 0–5% for C, against 0–29% for removal, in the three judged cells. One unjudged cell of 25 facts (Sonnet, knowledge allowed, which followed a smaller edit) had 76% for C and 100% for removal.
+- **Invented facts:** 0 false alarms.
+
+The span check (answer text in the cited text) caught none of the decorative citations. From v1: removal also catches citations made unnecessary by an uncited copy (about 98%).

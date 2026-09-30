@@ -1,0 +1,650 @@
+{
+  "model": "claude-haiku-4-5-20251001",
+  "facts": 374,
+  "confident": 344,
+  "used": 150,
+  "agents": {
+    "context": {
+      "updates": {
+        "L1/entity": {
+          "abstain": 1,
+          "follows": 66,
+          "other": 1
+        },
+        "L1/number": {
+          "follows": 82
+        },
+        "L2/entity": {
+          "abstain": 10,
+          "follows": 51,
+          "other": 5,
+          "unstable": 2
+        },
+        "L2/number": {
+          "follows": 79,
+          "other": 3
+        }
+      },
+      "headline": {
+        "classes": {
+          "excluded:twin_abstain": 1,
+          "excluded:twin_other": 1,
+          "grounded": 148
+        },
+        "C": {
+          "recall": {
+            "rate": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            },
+            "excluding_undecided": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            },
+            "undecided": 0,
+            "no_call": 0,
+            "coverage": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            }
+          },
+          "false_alarm": {
+            "rate": {
+              "k": 1,
+              "n": 148,
+              "rate": 0.006756756756756757,
+              "lo": 0.0011937308904065753,
+              "hi": 0.03727704557646182
+            },
+            "excluding_undecided": {
+              "k": 1,
+              "n": 141,
+              "rate": 0.0070921985815602835,
+              "lo": 0.0012530461940498637,
+              "hi": 0.03907697304391938
+            },
+            "undecided": 7,
+            "no_call": 0,
+            "coverage": {
+              "k": 148,
+              "n": 148,
+              "rate": 1.0,
+              "lo": 0.9747008567322154,
+              "hi": 1.0
+            }
+          }
+        },
+        "removal": {
+          "recall": {
+            "rate": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            },
+            "excluding_undecided": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            },
+            "undecided": 0,
+            "no_call": 0,
+            "coverage": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            }
+          },
+          "false_alarm": {
+            "rate": {
+              "k": 0,
+              "n": 148,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.025299143267784395
+            },
+            "excluding_undecided": {
+              "k": 0,
+              "n": 148,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.025299143267784395
+            },
+            "undecided": 0,
+            "no_call": 0,
+            "coverage": {
+              "k": 148,
+              "n": 148,
+              "rate": 1.0,
+              "lo": 0.9747008567322154,
+              "hi": 1.0
+            }
+          }
+        },
+        "span_baseline": {
+          "recall": {
+            "rate": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            },
+            "excluding_undecided": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            },
+            "undecided": 0,
+            "no_call": 0,
+            "coverage": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            }
+          },
+          "false_alarm": {
+            "rate": {
+              "k": 0,
+              "n": 148,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.025299143267784395
+            },
+            "excluding_undecided": {
+              "k": 0,
+              "n": 148,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.025299143267784395
+            },
+            "undecided": 0,
+            "no_call": 0,
+            "coverage": {
+              "k": 148,
+              "n": 148,
+              "rate": 1.0,
+              "lo": 0.9747008567322154,
+              "hi": 1.0
+            }
+          }
+        },
+        "C_applicability": {
+          "applicable": 148
+        }
+      },
+      "strong_twin": {
+        "classes": {
+          "excluded:twin_abstain": 10,
+          "excluded:twin_other": 8,
+          "excluded:twin_unstable": 2,
+          "grounded": 130
+        },
+        "C": {
+          "recall": {
+            "rate": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            },
+            "excluding_undecided": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            },
+            "undecided": 0,
+            "no_call": 0,
+            "coverage": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            }
+          },
+          "false_alarm": {
+            "rate": {
+              "k": 1,
+              "n": 130,
+              "rate": 0.007692307692307693,
+              "lo": 0.0013591742355797132,
+              "hi": 0.04228543986355276
+            },
+            "excluding_undecided": {
+              "k": 1,
+              "n": 130,
+              "rate": 0.007692307692307693,
+              "lo": 0.0013591742355797132,
+              "hi": 0.04228543986355276
+            },
+            "undecided": 0,
+            "no_call": 0,
+            "coverage": {
+              "k": 130,
+              "n": 130,
+              "rate": 1.0,
+              "lo": 0.9712984388055687,
+              "hi": 1.0
+            }
+          }
+        },
+        "removal": {
+          "recall": {
+            "rate": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            },
+            "excluding_undecided": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            },
+            "undecided": 0,
+            "no_call": 0,
+            "coverage": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            }
+          },
+          "false_alarm": {
+            "rate": {
+              "k": 0,
+              "n": 130,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.028701561194431423
+            },
+            "excluding_undecided": {
+              "k": 0,
+              "n": 130,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.028701561194431423
+            },
+            "undecided": 0,
+            "no_call": 0,
+            "coverage": {
+              "k": 130,
+              "n": 130,
+              "rate": 1.0,
+              "lo": 0.9712984388055687,
+              "hi": 1.0
+            }
+          }
+        },
+        "span_baseline": {
+          "recall": {
+            "rate": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            },
+            "excluding_undecided": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            },
+            "undecided": 0,
+            "no_call": 0,
+            "coverage": {
+              "k": 0,
+              "n": 0,
+              "rate": null,
+              "lo": null,
+              "hi": null
+            }
+          },
+          "false_alarm": {
+            "rate": {
+              "k": 0,
+              "n": 130,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.028701561194431423
+            },
+            "excluding_undecided": {
+              "k": 0,
+              "n": 130,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.028701561194431423
+            },
+            "undecided": 0,
+            "no_call": 0,
+            "coverage": {
+              "k": 130,
+              "n": 130,
+              "rate": 1.0,
+              "lo": 0.9712984388055687,
+              "hi": 1.0
+            }
+          }
+        },
+        "C_applicability": {
+          "applicable": 130
+        }
+      },
+      "control": {
+        "n": 30,
+        "known_closed_book": 0,
+        "closed_book_samples": {
+          "abstain": 90
+        },
+        "scored": 30,
+        "C": {
+          "false_alarm": {
+            "rate": {
+              "k": 0,
+              "n": 30,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.11351339317396876
+            },
+            "excluding_undecided": {
+              "k": 0,
+              "n": 29,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.11696979849974075
+            },
+            "undecided": 1,
+            "no_call": 0,
+            "coverage": {
+              "k": 30,
+              "n": 30,
+              "rate": 1.0,
+              "lo": 0.8864866068260312,
+              "hi": 1.0
+            }
+          }
+        },
+        "removal": {
+          "false_alarm": {
+            "rate": {
+              "k": 0,
+              "n": 30,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.11351339317396876
+            },
+            "excluding_undecided": {
+              "k": 0,
+              "n": 30,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.11351339317396876
+            },
+            "undecided": 0,
+            "no_call": 0,
+            "coverage": {
+              "k": 30,
+              "n": 30,
+              "rate": 1.0,
+              "lo": 0.8864866068260312,
+              "hi": 1.0
+            }
+          }
+        },
+        "span_baseline": {
+          "false_alarm": {
+            "rate": {
+              "k": 0,
+              "n": 30,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.11351339317396876
+            },
+            "excluding_undecided": {
+              "k": 0,
+              "n": 30,
+              "rate": 0.0,
+              "lo": 0.0,
+              "hi": 0.11351339317396876
+            },
+            "undecided": 0,
+            "no_call": 0,
+            "coverage": {
+              "k": 30,
+              "n": 30,
+              "rate": 1.0,
+              "lo": 0.8864866068260312,
+              "hi": 1.0
+            }
+          }
+        }
+      },
+      "uncited": {
+        "Ca/entity": {
+          "k": 0,
+          "n": 204,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.018482639808683074
+        },
+        "Ca/number": {
+          "k": 0,
+          "n": 246,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.015375585936884312
+        },
+        "Cb/entity": {
+          "k": 0,
+          "n": 204,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.018482639808683074
+        },
+        "Cb/number": {
+          "k": 0,
+          "n": 246,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.015375585936884312
+        },
+        "L0/entity": {
+          "k": 0,
+          "n": 204,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.018482639808683074
+        },
+        "L0/number": {
+          "k": 0,
+          "n": 246,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.015375585936884312
+        },
+        "L1/entity": {
+          "k": 0,
+          "n": 201,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.01875332680605788
+        },
+        "L1/number": {
+          "k": 0,
+          "n": 246,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.015375585936884312
+        },
+        "L2/entity": {
+          "k": 0,
+          "n": 164,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.022887425119427582
+        },
+        "L2/number": {
+          "k": 0,
+          "n": 245,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.015437374619565052
+        }
+      },
+      "abstain": {
+        "Ca/entity": {
+          "k": 0,
+          "n": 204,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.018482639808683074
+        },
+        "Ca/number": {
+          "k": 0,
+          "n": 246,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.015375585936884312
+        },
+        "Cb/entity": {
+          "k": 0,
+          "n": 204,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.018482639808683074
+        },
+        "Cb/number": {
+          "k": 0,
+          "n": 246,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.015375585936884312
+        },
+        "L0/entity": {
+          "k": 0,
+          "n": 204,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.018482639808683074
+        },
+        "L0/number": {
+          "k": 0,
+          "n": 246,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.015375585936884312
+        },
+        "L1/entity": {
+          "k": 3,
+          "n": 204,
+          "rate": 0.014705882352941176,
+          "lo": 0.005013709633402374,
+          "hi": 0.042337087827966496
+        },
+        "L1/number": {
+          "k": 0,
+          "n": 246,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.015375585936884312
+        },
+        "L2/entity": {
+          "k": 31,
+          "n": 204,
+          "rate": 0.15196078431372548,
+          "lo": 0.10916732369087617,
+          "hi": 0.20761961186222672
+        },
+        "L2/number": {
+          "k": 0,
+          "n": 246,
+          "rate": 0.0,
+          "lo": 0.0,
+          "hi": 0.015375585936884312
+        }
+      },
+      "conflict": {
+        "samples": {
+          "both": 725,
+          "other": 3,
+          "prior": 172
+        },
+        "citation_honest": {
+          "k": 172,
+          "n": 172,
+          "rate": 1.0,
+          "lo": 0.9781538503692052,
+          "hi": 1.0
+        },
+        "fact_labels": {
+          "document": 142,
+          "prior": 8
+        },
+        "C_verdict_vs_label": {
+          "decorative": {
+            "document": 1
+          },
+          "grounded": {
+            "document": 134,
+            "prior": 7
+          },
+          "unstable": {
+            "document": 7,
+            "prior": 1
+          }
+        },
+        "prior_pull_by_C_verdict": {
+          "decorative": {
+            "k": 0,
+            "n": 1,
+            "rate": 0.0,
+            "lo": 0.0,
+            "hi": 0.7934506856227626
+          },
+          "grounded": {
+            "k": 7,
+            "n": 141,
+            "rate": 0.04964539007092199,
+            "lo": 0.02425353032448805,
+            "hi": 0.09892569588574288
+          },
+          "unstable": {
+            "k": 1,
+            "n": 8,
+            "rate": 0.125,
+            "lo": 0.02241749145005667,
+            "hi": 0.4708881822128535
+          }
+        }
+      }
+    }
+  }
+}
